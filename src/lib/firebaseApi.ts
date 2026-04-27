@@ -14,7 +14,7 @@ import {
   connUpsertReturning,
   connUpdate,
   connDeleteById,
-} from "@/lib/dbConnections";
+} from './dbConnections';
 
 // --- Admin password (presentation-level) ---
 const ADMIN_PASSWORD = "janki_app";

@@ -45,7 +45,7 @@ import {
   bootstrapFirebaseSchema,
   connTransferRows,
   type FirestoreCollectionProbe,
-} from "@/lib/dbConnections";
+} from '../lib/dbConnections';
 
 const APP_TABLES = [
   "students",

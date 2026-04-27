@@ -9,7 +9,7 @@ import {
   fromDateInputValue,
   endOfDay,
   startOfDay,
-} from '@/lib/timeRanges';
+} from '../lib/timeRanges';
 
 export interface TimeRangeValue {
   preset: RangePreset;

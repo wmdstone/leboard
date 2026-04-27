@@ -4,7 +4,7 @@
 // localStorage and is used by firebaseApi.ts via getActiveClient().
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { supabase as defaultClient } from "@/integrations/supabase/client";
+import { supabase as defaultClient } from '../integrations/supabase/client';
 import {
   connectFirestore,
   testFirestore,
@@ -21,9 +21,9 @@ import {
   type FirestoreCollectionProbe,
   type FirestoreWriteMode,
   type FirebaseConfig,
-} from "@/lib/firestoreDriver";
+} from './firestoreDriver';
 
-export type { FirestoreCollectionProbe, FirestoreWriteMode } from "@/lib/firestoreDriver";
+export type { FirestoreCollectionProbe, FirestoreWriteMode } from './firestoreDriver';
 
 export type DbProvider = "supabase" | "firebase";
 

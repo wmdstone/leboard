@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Download, Upload, FileText, Loader2, CheckCircle2, AlertCircle, Database } from 'lucide-react';
-import { toCSV, downloadCSV, parseCSV } from '@/lib/csv';
-import { supabase } from '@/integrations/supabase/client';
+import { toCSV, downloadCSV, parseCSV } from '../lib/csv';
+import { supabase } from '../integrations/supabase/client';
 
 type ApiFetch = (url: string, init?: RequestInit) => Promise<Response>;
 

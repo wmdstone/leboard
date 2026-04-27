@@ -1,10 +1,18 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 2,
+      refetchOnWindowFocus: true,
+    },
+  },
+});
 
 const DEFAULT_SUPABASE_URL = 'https://xmsjbzujyfrkecgwfxlc.supabase.co';
 
@@ -172,7 +180,7 @@ if ('serviceWorker' in navigator) {
 // render the recovery screen instead of leaving the user with a blank page.
 (async () => {
   try {
-    const { default: App } = await import('./App.tsx');
+    const { default: App } = await import('./App');
     createRoot(ROOT_EL()!).render(
       <StrictMode>
         <ErrorBoundary>

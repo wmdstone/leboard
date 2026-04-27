@@ -2,7 +2,7 @@
 // Captures: page visits, leaderboard filter changes, profile opens, admin login.
 // Each browser gets a stable session_id stored in localStorage.
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '../integrations/supabase/client';
 
 const SESSION_KEY = "app_session_id";
 
