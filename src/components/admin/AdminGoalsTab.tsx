@@ -1,10 +1,19 @@
 import React, { useState, useMemo } from 'react';
-import { Target, ChevronUp, FolderTree, Info, Save, Trash2, Edit2, X, Plus, ChevronDown, ChevronRight, Tags } from 'lucide-react';
+import { Target, ChevronUp, ChevronDown, Plus, MoreHorizontal, Edit2, Trash2 } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ActionMenu } from '../ui/ActionMenu';
+import { motion, AnimatePresence } from 'motion/react';
 import { ConfirmModal } from '../ui/ConfirmModal';
-import type { Category, MasterGoal, AssignedGoal, Student } from '../../lib/types';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { Category, MasterGoal } from '../../lib/types';
 
 export function AdminGoalsTab({ masterGoals, refreshData, categories }: any) {
   // Goal Modal States
@@ -93,28 +102,35 @@ export function AdminGoalsTab({ masterGoals, refreshData, categories }: any) {
   }, [categories, masterGoals]);
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
         <div>
-          <h3 className="text-2xl font-black text-text-main underline decoration-primary-500 decoration-4 underline-offset-8">Tracks & Goals</h3>
-          <p className="text-text-muted text-sm mt-3">Manage categories and their goal templates.</p>
+          <h3 className="text-2xl font-black text-foreground underline decoration-primary decoration-4 underline-offset-8">Tracks & Goals</h3>
+          <p className="text-muted-foreground text-sm mt-3">Manage categories and their goal templates.</p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 w-full sm:w-auto">
           <form 
             onSubmit={(e) => { e.preventDefault(); addCategory(); }} 
-            className="flex items-center gap-2 bg-base-200 p-1.5 rounded-2xl border border-base-200"
+            className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto"
           >
-            <input 
-              type="text" placeholder="New Track Name" value={newCatName} onChange={e => setNewCatName(e.target.value)}
-              className="bg-transparent border-none px-4 py-2 text-sm font-bold focus:ring-0 w-48"
+            <Input 
+              type="text" 
+              placeholder="New Track Name" 
+              value={newCatName} 
+              onChange={e => setNewCatName(e.target.value)}
+              className="h-12 rounded-xl border-border bg-card shadow-soft w-full sm:w-48 font-bold"
             />
-            <button type="submit" className="bg-primary-600 text-base-50 p-2 rounded-xl hover:bg-primary-700 active:scale-95 transition-all">
-              <Plus className="h-5 w-5" />
-            </button>
+            <Button type="submit" className="h-12 w-full sm:w-auto rounded-xl shadow-primary-glow font-bold">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Track
+            </Button>
           </form>
-          <button onClick={() => { setEditGoalData(null); setGoalModalOpen(true); }} className="bg-primary-600 text-base-50 px-6 py-2 rounded-2xl text-sm font-black flex items-center gap-2 active:scale-95 shadow-md shadow-primary-500/20">
-            <Target className="h-4 w-4" /> New Goal
-          </button>
+          <Button 
+            onClick={() => { setEditGoalData(null); setGoalModalOpen(true); }} 
+            className="h-12 w-full sm:w-auto rounded-xl shadow-primary-glow font-bold"
+          >
+            <Target className="h-4 w-4 mr-2" /> New Goal
+          </Button>
         </div>
       </div>
 
@@ -124,42 +140,61 @@ export function AdminGoalsTab({ masterGoals, refreshData, categories }: any) {
           const isSystem = group.category.isSystem;
           
           return (
-            <div key={group.category.id} className="bg-base-200/30 border border-base-200 rounded-[2rem] relative">
-              {/* Category Header */}
-              <div 
-                className={`flex items-center justify-between p-4 cursor-pointer hover:bg-base-200/50 transition-colors ${isExpanded ? 'rounded-t-[2rem]' : 'rounded-[2rem]'}`}
+            <Card key={group.category.id} className="rounded-xl shadow-soft border-border overflow-hidden">
+              <CardHeader 
+                className={`p-4 cursor-pointer hover:bg-secondary/20 transition-colors flex flex-row items-center justify-between space-y-0`}
                 onClick={() => toggleCat(group.category.id)}
               >
                 <div className="flex items-center gap-4 flex-1">
                   {editCatData?.id === group.category.id ? (
                     <div className="flex flex-1 gap-2 items-center" onClick={e => e.stopPropagation()}>
-                      <input 
-                        type="text" value={editCatName} onChange={e => setEditCatName(e.target.value)} autoFocus
-                        className="bg-base-100 border border-base-200 rounded-xl px-4 py-2 text-sm font-bold focus:ring-2 focus:ring-primary-100"
+                      <Input 
+                        type="text" 
+                        value={editCatName} 
+                        onChange={e => setEditCatName(e.target.value)} 
+                        autoFocus
+                        className="bg-background rounded-xl font-bold h-10 w-full sm:w-64"
                       />
-                      <button onClick={updateCategory} className="bg-accent-500 text-base-50 px-4 py-2 rounded-xl text-sm font-bold hover:bg-accent-600">Save</button>
-                      <button onClick={() => setEditCatData(null)} className="bg-base-200 text-text-muted px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-300">Cancel</button>
+                      <Button onClick={updateCategory} className="rounded-xl h-10">Save</Button>
+                      <Button variant="ghost" onClick={() => setEditCatData(null)} className="rounded-xl h-10">Cancel</Button>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-1 items-start ml-2">
-                      <span className="font-black text-text-main">{group.category.name}</span>
-                      <span className="text-text-light text-xs font-bold">{group.goals.length} goals</span>
+                      <span className="font-black text-foreground">{group.category.name}</span>
+                      <span className="text-muted-foreground text-xs font-bold">{group.goals.length} goals</span>
                     </div>
                   )}
                 </div>
                 
                 <div className="flex items-center gap-2">
                   {!isSystem && editCatData?.id !== group.category.id && (
-                    <div className="flex items-center mr-2" onClick={e => e.stopPropagation()}>
-                      <ActionMenu 
-                        onEdit={() => { setEditCatData(group.category); setEditCatName(group.category.name); }}
-                        onDelete={() => setDeleteCatConfirm(group.category)}
-                      />
+                    <div className="flex items-center" onClick={e => e.stopPropagation()}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground mr-2">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="rounded-xl shadow-soft border-border">
+                          <DropdownMenuItem
+                            onClick={(e) => { e.stopPropagation(); setEditCatData(group.category); setEditCatName(group.category.name); }}
+                            className="font-medium cursor-pointer flex items-center gap-2"
+                          >
+                            <Edit2 className="w-4 h-4 text-muted-foreground" /> Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => { e.stopPropagation(); setDeleteCatConfirm(group.category); }}
+                            className="text-destructive focus:text-destructive font-medium cursor-pointer flex items-center gap-2"
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive/70" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   )}
-                  {isExpanded ? <ChevronUp className="w-5 h-5 text-text-light" /> : <ChevronDown className="w-5 h-5 text-text-light" />}
+                  {isExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
                 </div>
-              </div>
+              </CardHeader>
 
               {/* Goals Content */}
               <AnimatePresence>
@@ -168,35 +203,54 @@ export function AdminGoalsTab({ masterGoals, refreshData, categories }: any) {
                     initial={{ height: 0, opacity: 0 }} 
                     animate={{ height: 'auto', opacity: 1 }} 
                     exit={{ height: 0, opacity: 0 }}
+                    style={{ overflow: 'hidden' }}
                   >
-                    <div className="p-4 pt-0 border-t border-base-200/50 bg-base-100/50 rounded-b-[2rem]">
+                    <CardContent className="p-4 pt-0 border-t border-border/40 bg-card rounded-b-[1.5rem]">
                       {group.goals.length === 0 ? (
-                        <p className="text-sm font-bold text-text-muted text-center py-8">No goals in this track.</p>
+                        <p className="text-sm font-medium text-muted-foreground text-center py-8">No goals in this track.</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                           {group.goals.map((mg: any) => (
-                            <div key={mg.id} className="bg-base-100 p-5 rounded-[1.5rem] border border-base-200 shadow-sm space-y-3 group hover:border-primary-200 transition-colors">
-                              <div className="flex justify-between items-start">
-                                <h4 className="font-bold text-text-main leading-tight flex-1" title={mg.title}>{mg.title}</h4>
-                                <div className="bg-base-200 px-2 py-1 rounded-lg text-xs font-black text-primary-600 ml-2 whitespace-nowrap">+{mg.points !== undefined ? mg.points : mg.pointValue || 0}</div>
+                            <Card key={mg.id} className="rounded-xl border border-border shadow-none hover:shadow-soft transition-shadow group relative flex flex-col justify-between">
+                              <CardContent className="p-4 space-y-3">
+                                <div className="flex justify-between items-start gap-4">
+                                  <h4 className="font-bold text-foreground leading-tight flex-1" title={mg.title}>{mg.title}</h4>
+                                  <div className="bg-primary/10 px-2 py-1 rounded-lg text-xs font-black text-primary shrink-0">+{mg.points !== undefined ? mg.points : mg.pointValue || 0}</div>
+                                </div>
+                                <p className="text-xs text-muted-foreground italic leading-relaxed line-clamp-2" title={mg.description}>{mg.description}</p>
+                              </CardContent>
+                              <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity bg-card rounded-xl">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="rounded-xl shadow-soft border-border">
+                                    <DropdownMenuItem
+                                      onClick={() => { setEditGoalData(mg); setGoalModalOpen(true); }}
+                                      className="font-medium cursor-pointer flex items-center gap-2"
+                                    >
+                                      <Edit2 className="w-4 h-4 text-muted-foreground" /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => setDeleteGoalConfirm(mg)}
+                                      className="text-destructive focus:text-destructive font-medium cursor-pointer flex items-center gap-2"
+                                    >
+                                      <Trash2 className="w-4 h-4 text-destructive/70" /> Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               </div>
-                              <p className="text-xs text-text-muted italic leading-relaxed line-clamp-2" title={mg.description}>{mg.description}</p>
-                              <div className="flex justify-end gap-1 pt-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                                <ActionMenu 
-                                  placement="top-center"
-                                  onEdit={() => { setEditGoalData(mg); setGoalModalOpen(true); }}
-                                  onDelete={() => setDeleteGoalConfirm(mg)}
-                                />
-                              </div>
-                            </div>
+                            </Card>
                           ))}
                         </div>
                       )}
-                    </div>
+                    </CardContent>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </Card>
           );
         })}
       </div>
@@ -218,7 +272,6 @@ export function AdminGoalsTab({ masterGoals, refreshData, categories }: any) {
   );
 }
 
-
 // Goal Admin Modal (Internal usage)
 function GoalAdminModal({ goal, categories, onClose, onSave }: any) {
   const [formData, setFormData] = useState<MasterGoal>({
@@ -230,38 +283,67 @@ function GoalAdminModal({ goal, categories, onClose, onSave }: any) {
   });
 
   return (
-    <div className="fixed inset-0 bg-base-900/60 backdrop-blur-md z-[60] flex justify-center items-center p-4">
-      <div className="bg-base-100 rounded-[2rem] shadow-2xl w-full max-w-md">
-        <div className="p-6 border-b border-base-200 font-black text-lg">{goal ? 'Edit Template' : 'New Template'}</div>
-        <div className="p-8 space-y-6">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[60] flex justify-center items-center p-4">
+      <Card className="w-full max-w-md rounded-xl shadow-2xl border-border bg-card overflow-hidden">
+        <CardHeader className="p-6 border-b border-border">
+          <div className="font-black text-lg text-foreground">{goal ? 'Edit Template' : 'New Template'}</div>
+        </CardHeader>
+        <CardContent className="p-8 space-y-6">
           <div>
-            <label className="text-[10px] font-black uppercase tracking-widest text-text-light mb-2 block">Track Name</label>
-            <input type="text" className="w-full bg-base-200 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-100" required value={formData.title} onChange={e => setFormData(p=>({...p, title: e.target.value}))}/>
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">Track Name</label>
+            <Input 
+              type="text" 
+              className="bg-secondary/30 h-12 border-border font-bold text-sm rounded-xl"
+              required 
+              value={formData.title} 
+              onChange={e => setFormData(p=>({...p, title: e.target.value}))}
+            />
           </div>
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-[10px] font-black uppercase tracking-widest text-text-light mb-2 block">Category</label>
-              <select className="w-full bg-base-200 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-100" value={formData.categoryId} onChange={e => setFormData(p=>({...p, categoryId: e.target.value}))}>
-                {categories.map((c: any, index: number) => <option key={c.id || `cp2-${index}`} value={c.id}>{c.name}</option>)}
-              </select>
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">Category</label>
+              <Select 
+                value={formData.categoryId} 
+                onValueChange={v => setFormData(p=>({...p, categoryId: v}))}
+              >
+                <SelectTrigger className="bg-secondary/30 h-12 border-border font-bold text-sm rounded-xl w-full">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl shadow-soft border-border">
+                  {categories.map((c: any) => (
+                    <SelectItem key={c.id} value={c.id} className="font-medium">
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="w-24">
-              <label className="text-[10px] font-black uppercase tracking-widest text-text-light mb-2 block">Points</label>
-              <input type="number" className="w-full bg-base-200 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-100" min="1" value={formData.points} onChange={e => setFormData(p=>({...p, points: parseInt(e.target.value)||0}))}/>
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">Points</label>
+              <Input 
+                type="number" 
+                className="bg-secondary/30 h-12 border-border font-bold text-sm rounded-xl" 
+                min="1" 
+                value={String(formData.points)} 
+                onChange={e => setFormData(p=>({...p, points: parseInt(e.target.value)||0}))}
+              />
             </div>
           </div>
           <div>
-            <label className="text-[10px] font-black uppercase tracking-widest text-text-light mb-2 block">Description</label>
-            <textarea rows={3} className="w-full bg-base-200 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-100" value={formData.description} onChange={e => setFormData(p=>({...p, description: e.target.value}))}/>
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">Description</label>
+            <textarea 
+              rows={3} 
+              className="w-full bg-secondary/30 border border-border rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-primary/50 outline-none text-foreground placeholder:text-muted-foreground resize-none" 
+              value={formData.description} 
+              onChange={e => setFormData(p=>({...p, description: e.target.value}))}
+            />
           </div>
+        </CardContent>
+        <div className="p-6 border-t border-border bg-secondary/20 flex justify-end gap-3">
+          <Button variant="ghost" onClick={onClose} className="rounded-xl h-12 font-bold">Cancel</Button>
+          <Button onClick={() => onSave(formData)} className="rounded-xl h-12 font-bold shadow-primary-glow">Save Template</Button>
         </div>
-        <div className="p-6 border-t border-base-200 bg-base-200 flex justify-end gap-3 rounded-b-[2rem]">
-          <button onClick={onClose} className="px-6 py-2 rounded-xl text-sm font-bold text-text-light transition-colors">Cancel</button>
-          <button onClick={() => onSave(formData)} className="bg-primary-600 px-8 py-3 rounded-xl text-base-50 font-black shadow-lg shadow-primary-100 active:scale-95 transition-all">Save Template</button>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 }
-
-

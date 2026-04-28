@@ -156,14 +156,14 @@ export function CacheHealthTab() {
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6">
       <header className="flex items-start gap-3">
-        <div className="w-11 h-11 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
           <ShieldCheck className="w-5 h-5" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-xl sm:text-2xl font-black text-text-main">
+          <h2 className="text-xl sm:text-2xl font-black text-foreground">
             PWA Management & Health
           </h2>
-          <p className="text-sm text-text-muted font-medium">
+          <p className="text-sm text-muted-foreground font-medium">
             Inspect the service worker, manage PWA status, clear caches, and confirm new
             builds have been applied.
           </p>
@@ -179,8 +179,8 @@ export function CacheHealthTab() {
 
       <PwaCapabilitiesCard />
 
-      <div className="rounded-2xl border border-base-200 bg-base-100 p-4 space-y-3">
-        <h3 className="font-black text-text-main text-sm">Actions</h3>
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h3 className="font-black text-foreground text-sm">Actions</h3>
         <div className="grid sm:grid-cols-2 gap-2">
           <button
             onClick={handleSkipWaiting}
@@ -198,7 +198,7 @@ export function CacheHealthTab() {
           <button
             onClick={handleHardRefresh}
             disabled={busy !== null}
-            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-base-200 text-text-main font-bold hover:bg-base-200/80 disabled:opacity-60 active:scale-95 transition-all"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-foreground font-bold hover:bg-secondary/80 disabled:opacity-60 active:scale-95 transition-all"
           >
             {busy === "refreshing" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -217,22 +217,22 @@ export function CacheHealthTab() {
           </button>
         </div>
         {lastAction && (
-          <p className="text-xs font-bold text-text-muted">{lastAction}</p>
+          <p className="text-xs font-bold text-muted-foreground">{lastAction}</p>
         )}
       </div>
 
-      <div className="rounded-2xl border border-base-200 bg-base-100 p-4">
-        <h3 className="font-black text-text-main text-sm mb-2 flex items-center gap-2">
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <h3 className="font-black text-foreground text-sm mb-2 flex items-center gap-2">
           <HardDrive className="w-4 h-4" /> Cache buckets
         </h3>
         {cacheKeys.length === 0 ? (
-          <p className="text-xs text-text-muted">No caches stored.</p>
+          <p className="text-xs text-muted-foreground">No caches stored.</p>
         ) : (
           <ul className="text-xs font-mono space-y-1">
             {cacheKeys.map((k) => (
               <li
                 key={k}
-                className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-base-200/40"
+                className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-secondary/40"
               >
                 <span className="truncate">{k}</span>
               </li>
@@ -257,9 +257,9 @@ function StatusCard({
 }) {
   if (status === "checking") {
     return (
-      <div className="rounded-2xl border border-base-200 bg-base-100 p-4 flex items-center gap-3">
-        <Loader2 className="w-4 h-4 animate-spin text-text-muted" />
-        <span className="text-sm text-text-muted font-bold">Checking…</span>
+      <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
+        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+        <span className="text-sm text-muted-foreground font-bold">Checking…</span>
       </div>
     );
   }
@@ -273,12 +273,12 @@ function StatusCard({
   }
   if (status === "no-sw") {
     return (
-      <div className="rounded-2xl border border-base-200 bg-base-100 p-4 text-sm text-text-main">
+      <div className="rounded-2xl border border-border bg-card p-4 text-sm text-foreground">
         <div className="flex items-center gap-2 mb-1">
-          <Cpu className="w-4 h-4 text-text-muted" />
+          <Cpu className="w-4 h-4 text-muted-foreground" />
           <span className="font-black">No service worker registered.</span>
         </div>
-        <p className="text-xs text-text-muted">
+        <p className="text-xs text-muted-foreground">
           The app is running directly from the network. {cacheKeys.length} stale
           cache(s) found and can be cleared below.
         </p>
@@ -299,20 +299,20 @@ function StatusCard({
         )}
       </div>
       <dl className="grid grid-cols-3 gap-x-4 gap-y-1 text-xs">
-        <dt className="text-text-muted font-bold">Version</dt>
-        <dd className="col-span-2 font-mono text-text-main truncate">
+        <dt className="text-muted-foreground font-bold">Version</dt>
+        <dd className="col-span-2 font-mono text-foreground truncate">
           {info?.version || "unknown"}
         </dd>
-        <dt className="text-text-muted font-bold">Build</dt>
-        <dd className="col-span-2 font-mono text-text-main truncate">
+        <dt className="text-muted-foreground font-bold">Build</dt>
+        <dd className="col-span-2 font-mono text-foreground truncate">
           {info?.buildId || "—"}
         </dd>
-        <dt className="text-text-muted font-bold">Scope</dt>
-        <dd className="col-span-2 font-mono text-text-main truncate">
+        <dt className="text-muted-foreground font-bold">Scope</dt>
+        <dd className="col-span-2 font-mono text-foreground truncate">
           {info?.scope || "—"}
         </dd>
-        <dt className="text-text-muted font-bold">Caches</dt>
-        <dd className="col-span-2 font-mono text-text-main">
+        <dt className="text-muted-foreground font-bold">Caches</dt>
+        <dd className="col-span-2 font-mono text-foreground">
           {cacheKeys.length}
         </dd>
       </dl>
@@ -364,16 +364,16 @@ function PwaCapabilitiesCard() {
   };
 
   return (
-    <div className="rounded-2xl border border-base-200 bg-base-100 p-4 space-y-4">
-      <h3 className="font-black text-text-main text-sm flex items-center gap-2">
+    <div className="rounded-2xl border border-border bg-card p-4 space-y-4">
+      <h3 className="font-black text-foreground text-sm flex items-center gap-2">
         <Smartphone className="w-4 h-4" /> Device Integration & Status
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Network Status */}
-        <div className="flex flex-col p-3 rounded-xl bg-base-50 border border-base-200 shadow-sm">
+        <div className="flex flex-col p-3 rounded-xl bg-background border border-border shadow-soft">
           <div className="flex items-center gap-2 mb-1">
             {isOnline ? <Wifi className="w-4 h-4 text-emerald-600" /> : <WifiOff className="w-4 h-4 text-red-600" />}
-            <span className="font-bold text-sm text-text-main">Network</span>
+            <span className="font-bold text-sm text-foreground">Network</span>
           </div>
           <span className={`text-xs font-bold ${isOnline ? 'text-emerald-600' : 'text-red-600'}`}>
             {isOnline ? 'Online' : 'Offline'}
@@ -381,26 +381,26 @@ function PwaCapabilitiesCard() {
         </div>
 
         {/* Display Mode */}
-        <div className="flex flex-col p-3 rounded-xl bg-base-50 border border-base-200 shadow-sm">
+        <div className="flex flex-col p-3 rounded-xl bg-background border border-border shadow-soft">
           <div className="flex items-center gap-2 mb-1">
-            <Smartphone className="w-4 h-4 text-primary-600" />
-            <span className="font-bold text-sm text-text-main">Display Mode</span>
+            <Smartphone className="w-4 h-4 text-primary" />
+            <span className="font-bold text-sm text-foreground">Display Mode</span>
           </div>
-          <span className="text-xs font-medium text-text-muted capitalize">
+          <span className="text-xs font-medium text-muted-foreground capitalize">
             {displayMode}
           </span>
         </div>
 
         {/* Notifications */}
-        <div className="flex flex-col p-3 rounded-xl bg-base-50 border border-base-200 shadow-sm">
+        <div className="flex flex-col p-3 rounded-xl bg-background border border-border shadow-soft">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-amber-600" />
-              <span className="font-bold text-sm text-text-main">Notifications</span>
+              <span className="font-bold text-sm text-foreground">Notifications</span>
             </div>
 
           </div>
-          <span className={`text-xs font-medium capitalize ${pushStatus === 'granted' ? 'text-emerald-600 font-bold' : 'text-text-muted'}`}>
+          <span className={`text-xs font-medium capitalize ${pushStatus === 'granted' ? 'text-emerald-600 font-bold' : 'text-muted-foreground'}`}>
             {pushStatus}
           </span>
         </div>

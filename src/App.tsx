@@ -42,7 +42,7 @@ import {
   Target, FolderTree, Info, CheckSquare, Square, LogIn, LogOut, Loader2,
   Home, User as UserIcon, LayoutDashboard, MoreHorizontal, ArrowUp, ArrowDown,
   Palette, Save, Image as ImageIcon, TrendingUp, Crown, ZoomIn, ZoomOut,
-  Database, Server, ShieldCheck
+  Database, Server, ShieldCheck, Sun, Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
@@ -69,6 +69,21 @@ export default function App() {
     }
   }, [appSettings]);
   
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => (localStorage.getItem('theme-mode') as 'light' | 'dark') || 'light');
+
+  useEffect(() => {
+    if (themeMode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme-mode', themeMode);
+  }, [themeMode]);
+
+  const toggleTheme = () => {
+    setThemeMode(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
   const [currentRoute, setCurrentRoute] = useState<{ path: string; params: { id?: string } }>({ path: '/', params: {} });
 
   // Navigation Helper
@@ -127,17 +142,17 @@ export default function App() {
 
   if (isAuthLoading || isLoading) {
     return (
-      <div className="fixed inset-0 bg-base-50 flex flex-col items-center justify-center z-50">
-        <Loader2 className="w-12 h-12 text-primary-600 animate-spin mb-4" />
-        <p className="text-primary-800 font-bold tracking-widest uppercase text-xs">Loading Application...</p>
+      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-50">
+        <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+        <p className="text-primary font-bold tracking-widest uppercase text-xs">Loading Application...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-base-200 text-text-main font-sans flex flex-col pb-20 md:pb-0">
+    <div className="min-h-screen bg-background text-foreground font-sans flex flex-col pb-20 md:pb-0">
       {/* Navbar Global */}
-      <nav className="bg-base-100/80 backdrop-blur-md border-b border-base-200 sticky top-0 z-40 shadow-sm hidden md:block">
+      <nav className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-40 shadow-soft hidden md:block">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div 
@@ -147,19 +162,22 @@ export default function App() {
               {appSettings.logoUrl ? (
                 <ImageFallback src={appSettings.logoUrl} alt="Logo" variant="logo" className="h-10 w-10 object-contain rounded-xl" wrapperClassName="h-10 w-10" />
               ) : (
-                <div className="bg-primary-600 p-2 rounded-xl group-hover:rotate-6 transition-transform">
-                  <Trophy className="h-6 w-6 text-base-50" />
+                <div className="bg-primary p-2 rounded-xl group-hover:rotate-6 transition-transform">
+                  <Trophy className="h-6 w-6 text-primary-foreground" />
                 </div>
               )}
-              <span className="font-bold text-xl tracking-tight text-text-main">
+              <span className="font-bold text-xl tracking-tight text-foreground">
                 {appSettings.appName || 'Tiny Tree'}
               </span>
             </div>
             
             <div className="flex items-center space-x-4">
+              <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-secondary rounded-xl">
+                {themeMode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
               <button 
                 onClick={() => navigateTo('/')}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${currentRoute.path === '/' ? 'bg-primary-50 text-primary-600' : 'text-text-muted hover:bg-base-200'}`}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${currentRoute.path === '/' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-secondary'}`}
               >
                 Leaderboard
               </button>
@@ -168,7 +186,7 @@ export default function App() {
                 <>
                   <button 
                     onClick={() => navigateTo('/admin')}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all ${currentRoute.path === '/admin' ? 'bg-primary-600 text-base-50 shadow-lg' : 'text-text-muted hover:bg-base-200'}`}
+                    className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all ${currentRoute.path === '/admin' ? 'bg-primary text-primary-foreground shadow-soft' : 'text-muted-foreground hover:bg-secondary'}`}
                   >
                     <Settings className="h-4 w-4" /> Admin Panel
                   </button>
@@ -180,7 +198,7 @@ export default function App() {
                       trackEvent('admin_logout', { isAdmin: true });
                       navigateTo('/');
                     }}
-                    className="p-2 text-text-light hover:text-red-500 transition-colors"
+                    className="p-2 text-muted-foreground/60 hover:text-red-500 transition-colors"
                   >
                     <LogOut className="h-5 w-5" />
                   </button>
@@ -188,7 +206,7 @@ export default function App() {
               ) : (
                 <button 
                   onClick={() => navigateTo('/login')}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-primary-600 hover:bg-primary-50 border border-primary-200 transition-all"
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-primary hover:bg-primary/10 border border-primary/20 transition-all"
                 >
                   Admin Login
                 </button>
@@ -251,25 +269,29 @@ export default function App() {
         </ErrorBoundary>
       </main>
 
+      <button onClick={toggleTheme} className="fixed bottom-24 right-4 md:hidden p-3 bg-secondary border border-border text-foreground transition-colors shadow-soft rounded-full z-50">
+        {themeMode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </button>
+
       {/* Bottom Mobile Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 px-8 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] flex justify-between items-center md:hidden z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-8 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] flex justify-between items-center md:hidden z-50">
         <button 
           onClick={() => {
             if (navigator.vibrate) navigator.vibrate(50);
             navigateTo('/');
           }}
-          className={`flex flex-col items-center gap-1.5 transition-colors ${currentRoute.path === '/' || currentRoute.path === '/student' ? 'text-primary-600' : 'text-text-light hover:text-text-muted'}`}
+          className={`flex flex-col items-center gap-1.5 transition-colors ${currentRoute.path === '/' || currentRoute.path === '/student' ? 'text-primary' : 'text-muted-foreground/60 hover:text-muted-foreground'}`}
         >
           <Home className="w-6 h-6" />
           <span className="text-[10px] font-bold uppercase tracking-wider">Home</span>
         </button>
 
         {appSettings?.logoUrl ? (
-          <div className="w-16 h-16 -mt-8 rounded-full border-4 border-base-200 bg-base-100 shadow-sm flex items-center justify-center overflow-hidden z-10 cursor-pointer active:scale-95 transition-transform" onClick={() => navigateTo('/')}>
+          <div className="w-16 h-16 -mt-8 rounded-full border-4 border-border bg-card shadow-soft flex items-center justify-center overflow-hidden z-10 cursor-pointer active:scale-95 transition-transform" onClick={() => navigateTo('/')}>
              <ImageFallback src={appSettings.logoUrl} alt="Logo" variant="logo" className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
           </div>
         ) : (
-          <div className="w-16 h-16 -mt-8 rounded-full border-4 border-base-200 bg-base-100 shadow-sm flex items-center justify-center z-10 text-primary-500 cursor-pointer active:scale-95 transition-transform" onClick={() => navigateTo('/')}>
+          <div className="w-16 h-16 -mt-8 rounded-full border-4 border-border bg-card shadow-soft flex items-center justify-center z-10 text-primary cursor-pointer active:scale-95 transition-transform" onClick={() => navigateTo('/')}>
              <Trophy className="w-8 h-8" />
           </div>
         )}
@@ -279,7 +301,7 @@ export default function App() {
             if (navigator.vibrate) navigator.vibrate(50);
             if (isAdmin) navigateTo('/admin'); else navigateTo('/login');
           }}
-          className={`flex flex-col items-center gap-1.5 transition-colors ${currentRoute.path === '/admin' || currentRoute.path === '/login' ? 'text-primary-600' : 'text-text-light hover:text-text-muted'}`}
+          className={`flex flex-col items-center gap-1.5 transition-colors ${currentRoute.path === '/admin' || currentRoute.path === '/login' ? 'text-primary' : 'text-muted-foreground/60 hover:text-muted-foreground'}`}
         >
           {isAdmin ? <LayoutDashboard className="w-6 h-6" /> : <LogIn className="w-6 h-6" />}
           <span className="text-[10px] font-bold uppercase tracking-wider">{isAdmin ? 'Admin' : 'Login'}</span>

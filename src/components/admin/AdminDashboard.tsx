@@ -11,6 +11,7 @@ import { AdminStatisticsTab } from './AdminStatisticsTab';
 import { AdminImportExportTab } from '../AdminImportExportTab';
 import { AdminBackendTab } from '../AdminBackendTab';
 import CacheHealthTab from '../CacheHealthTab';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import type { Category, MasterGoal, AssignedGoal, Student } from '../../lib/types';
 
 // --- ADMIN DASHBOARD ---
@@ -31,8 +32,8 @@ export function AdminDashboard({ students, refreshData, masterGoals, categories,
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-text-main">Admin Control</h1>
-          <p className="text-text-muted font-medium">Manage students, learning goals, and tracks.</p>
+          <h1 className="text-3xl font-black text-foreground">Admin Control</h1>
+          <p className="text-muted-foreground font-medium">Manage students, learning goals, and tracks.</p>
         </div>
                 <div className="flex items-center gap-2">
           <button 
@@ -42,7 +43,7 @@ export function AdminDashboard({ students, refreshData, masterGoals, categories,
               setIsRefreshing(false);
             }}
             disabled={isRefreshing}
-            className="bg-base-100 border border-base-200 px-4 py-2 rounded-xl text-sm font-bold text-text-muted hover:bg-base-200 flex items-center gap-2 active:scale-95 transition-all"
+            className="bg-card border border-border px-4 py-2 rounded-xl text-sm font-bold text-muted-foreground hover:bg-secondary flex items-center gap-2 active:scale-95 transition-all"
           >
             {isRefreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <MoreHorizontal className="w-4 h-4" />}
             Force Sync
@@ -56,7 +57,7 @@ export function AdminDashboard({ students, refreshData, masterGoals, categories,
               trackEvent('admin_logout', { isAdmin: true });
               navigateTo('/');
             }}
-            className="bg-base-100 border border-red-200 px-4 py-2 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 flex items-center justify-center active:scale-95 transition-all md:hidden"
+            className="bg-card border border-red-200 px-4 py-2 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 flex items-center justify-center active:scale-95 transition-all md:hidden"
             aria-label="Logout"
             title="Logout"
           >
@@ -67,8 +68,8 @@ export function AdminDashboard({ students, refreshData, masterGoals, categories,
 
       <div className="flex flex-col gap-6">
         {/* Scrollable Horizontal Tabs */}
-        <div className="sticky top-0 md:top-16 z-30 bg-base-100/95 backdrop-blur-sm rounded-2xl border border-base-200 overflow-x-auto no-scrollbar scrollbar-hide snap-x px-2 py-1 shadow-sm">
-          <div className="flex items-center gap-2 sm:gap-4 border-b border-base-200 min-w-max px-4 sm:px-0">
+        <div className="sticky top-0 md:top-16 z-30 bg-card/95 backdrop-blur-sm rounded-2xl border border-border overflow-x-auto no-scrollbar scrollbar-hide snap-x px-2 py-1 shadow-soft">
+          <div className="flex items-center gap-2 sm:gap-4 border-b border-border min-w-max px-4 sm:px-0">
             {[
               { id: 'students', label: 'Students', icon: Users },
               { id: 'goals', label: 'Tracks & Goals', icon: Target },
@@ -86,11 +87,11 @@ export function AdminDashboard({ students, refreshData, masterGoals, categories,
                 }}
                 className={`group flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 min-h-11 font-bold text-base sm:text-lg transition-all whitespace-nowrap active:scale-95 border-b-[3px] snap-start ${
                   activeTab === tab.id 
-                    ? 'border-primary-600 text-primary-600' 
-                    : 'border-transparent text-text-muted hover:text-text-main'
+                    ? 'border-primary-600 text-primary' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <tab.icon className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 transition-colors ${activeTab === tab.id ? 'text-primary-600' : 'text-text-light group-hover:text-text-muted'}`} />
+                <tab.icon className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 transition-colors ${activeTab === tab.id ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-muted-foreground'}`} />
                 {tab.label}
               </button>
             ))}
@@ -98,7 +99,7 @@ export function AdminDashboard({ students, refreshData, masterGoals, categories,
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 bg-base-100 rounded-3xl md:rounded-[2.5rem] border border-base-200 shadow-sm overflow-hidden min-h-[600px]">
+        <div className="flex-1 bg-card rounded-xl md:rounded-xl border border-border shadow-soft overflow-hidden min-h-[600px]">
           {activeTab === 'students' && (
             <AdminStudentsTab 
               students={students} refreshData={refreshData}

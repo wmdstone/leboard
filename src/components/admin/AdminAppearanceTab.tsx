@@ -1,114 +1,120 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Image as ImageIcon, Save, Upload, Info, Hexagon, CheckCircle2, Palette, Trophy, Flame, UserIcon, ZoomOut, ZoomIn, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Image as ImageIcon, Save, CheckCircle2, Palette, Trophy, Flame, UserIcon, ZoomOut, ZoomIn, Loader2 } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import { apiFetch } from '../../lib/api';
 import ImageFallback from '../ImageFallback';
 
-const PRESETS = {
-  elegant_gold: {
-    primaryColor: { h: 43, s: 74, l: 49 },
-    accentColor: { h: 45, s: 93, l: 47 },
-    bgColor: { h: 36, s: 100, l: 97 },
-    textColor: { h: 30, s: 8, l: 14 }
-  },
-  bonsai_green: {
-    primaryColor: { h: 144, s: 29, l: 20 },
-    accentColor: { h: 34, s: 62, l: 57 },
-    bgColor: { h: 79, s: 29, l: 92 },
-    textColor: { h: 144, s: 18, l: 15 }
-  },
-  classic_madrasah: {
-    primaryColor: { h: 158, s: 64, l: 39 },
-    accentColor: { h: 45, s: 93, l: 47 },
-    bgColor: { h: 40, s: 33, l: 96 },
-    textColor: { h: 0, s: 0, l: 15 }
-  },
-  deep_forest: {
-    primaryColor: { h: 160, s: 40, l: 15 },
-    accentColor: { h: 160, s: 60, l: 40 },
-    bgColor: { h: 0, s: 0, l: 95 },
-    textColor: { h: 160, s: 20, l: 10 }
+type HSLColor = { h: number; s: number; l: number };
+
+type ThemeVariant = {
+  background: HSLColor;
+  foreground: HSLColor;
+  card: HSLColor;
+  'card-foreground': HSLColor;
+  popover: HSLColor;
+  'popover-foreground': HSLColor;
+  primary: HSLColor;
+  'primary-foreground': HSLColor;
+  secondary: HSLColor;
+  'secondary-foreground': HSLColor;
+  muted: HSLColor;
+  'muted-foreground': HSLColor;
+  accent: HSLColor;
+  'accent-foreground': HSLColor;
+  destructive: HSLColor;
+  'destructive-foreground': HSLColor;
+  border: HSLColor;
+  input: HSLColor;
+  ring: HSLColor;
+};
+
+export const PRESETS: Record<string, { name: string; light: ThemeVariant, dark: ThemeVariant }> = {
+  fresh_majestic: {
+    name: 'Fresh & Majestic (Default)',
+    light: {
+      background: { h: 144, s: 33, l: 97 },
+      foreground: { h: 166, s: 100, l: 20 },
+      card: { h: 0, s: 0, l: 100 },
+      'card-foreground': { h: 166, s: 100, l: 20 },
+      popover: { h: 0, s: 0, l: 100 },
+      'popover-foreground': { h: 166, s: 100, l: 20 },
+      primary: { h: 166, s: 100, l: 20 },
+      'primary-foreground': { h: 0, s: 0, l: 100 },
+      secondary: { h: 148, s: 49, l: 52 },
+      'secondary-foreground': { h: 0, s: 0, l: 100 },
+      muted: { h: 144, s: 33, l: 90 },
+      'muted-foreground': { h: 160, s: 20, l: 45 },
+      accent: { h: 46, s: 65, l: 52 },
+      'accent-foreground': { h: 0, s: 0, l: 100 },
+      destructive: { h: 0, s: 84, l: 60 },
+      'destructive-foreground': { h: 0, s: 0, l: 100 },
+      border: { h: 144, s: 33, l: 85 },
+      input: { h: 144, s: 33, l: 85 },
+      ring: { h: 46, s: 65, l: 52 }
+    },
+    dark: {
+      background: { h: 164, s: 40, l: 7 },
+      foreground: { h: 177, s: 47, l: 91 },
+      card: { h: 162, s: 36, l: 12 },
+      'card-foreground': { h: 177, s: 47, l: 91 },
+      popover: { h: 162, s: 36, l: 12 },
+      'popover-foreground': { h: 177, s: 47, l: 91 },
+      primary: { h: 145, s: 63, l: 49 },
+      'primary-foreground': { h: 164, s: 40, l: 7 },
+      secondary: { h: 166, s: 100, l: 20 },
+      'secondary-foreground': { h: 177, s: 47, l: 91 },
+      muted: { h: 162, s: 36, l: 18 },
+      'muted-foreground': { h: 177, s: 20, l: 60 },
+      accent: { h: 45, s: 100, l: 50 },
+      'accent-foreground': { h: 164, s: 40, l: 7 },
+      destructive: { h: 0, s: 84, l: 60 },
+      'destructive-foreground': { h: 177, s: 47, l: 91 },
+      border: { h: 166, s: 100, l: 20 },
+      input: { h: 166, s: 100, l: 20 },
+      ring: { h: 45, s: 100, l: 50 }
+    }
   }
 };
 
 export const applyThemeColors = (settings: any) => {
   if (!settings) return;
-  const applyHSL = (name: string, val: any) => {
-    if (!val || typeof val !== 'object' || val.h === undefined) return;
-    document.documentElement.style.setProperty(name, `hsl(${val.h}, ${val.s}%, ${val.l}%)`);
-    
-    if (name === '--theme-primary-600') {
-      document.documentElement.style.setProperty('--theme-primary-50', `hsl(${val.h}, ${val.s}%, ${Math.min(100, val.l + 45)}%)`);
-      document.documentElement.style.setProperty('--theme-primary-100', `hsl(${val.h}, ${val.s}%, ${Math.min(100, val.l + 40)}%)`);
-      document.documentElement.style.setProperty('--theme-primary-200', `hsl(${val.h}, ${val.s}%, ${Math.min(100, val.l + 30)}%)`);
-      document.documentElement.style.setProperty('--theme-primary-400', `hsl(${val.h}, ${val.s}%, ${Math.min(100, Math.max(0, val.l + 10))}%)`);
-      document.documentElement.style.setProperty('--theme-primary-500', `hsl(${val.h}, ${val.s}%, ${Math.min(100, Math.max(0, val.l + 5))}%)`);
-      document.documentElement.style.setProperty('--theme-primary-700', `hsl(${val.h}, ${val.s}%, ${Math.max(0, val.l - 10)}%)`);
-      document.documentElement.style.setProperty('--theme-primary-800', `hsl(${val.h}, ${val.s}%, ${Math.max(0, val.l - 20)}%)`);
-    }
 
-    if (name === '--theme-base-50') {
-      const isDark = val.l < 50;
-      const sign = isDark ? 1 : -1;
-      document.documentElement.style.setProperty('--theme-base-100', `hsl(${val.h}, ${val.s}%, ${Math.max(0, Math.min(100, val.l + sign * 6))}%)`);
-      document.documentElement.style.setProperty('--theme-base-200', `hsl(${val.h}, ${val.s}%, ${Math.max(0, Math.min(100, val.l + sign * 14))}%)`);
-      document.documentElement.style.setProperty('--theme-base-300', `hsl(${val.h}, ${val.s}%, ${Math.max(0, Math.min(100, val.l + sign * 20))}%)`);
-    }
-    if (name === '--theme-text-main') {
-      const isDark = val.l < 50;
-      const sign = isDark ? 1 : -1;
-      document.documentElement.style.setProperty('--theme-text-muted', `hsl(${val.h}, ${val.s}%, ${Math.max(0, Math.min(100, val.l + sign * 20))}%)`);
-      document.documentElement.style.setProperty('--theme-text-light', `hsl(${val.h}, ${val.s}%, ${Math.max(0, Math.min(100, val.l + sign * 40))}%)`);
-    }
-    if (name === '--theme-primary-600') {
-      document.documentElement.style.setProperty('--theme-primary-50', `hsl(${val.h}, ${val.s}%, 95%)`);
-      document.documentElement.style.setProperty('--theme-primary-100', `hsl(${val.h}, ${val.s}%, 90%)`);
-      document.documentElement.style.setProperty('--theme-primary-200', `hsl(${val.h}, ${val.s}%, 80%)`);
-      document.documentElement.style.setProperty('--theme-primary-500', `hsl(${val.h}, ${val.s}%, ${Math.min(100, val.l + 10)}%)`);
-      document.documentElement.style.setProperty('--theme-primary-700', `hsl(${val.h}, ${val.s}%, ${Math.max(0, val.l - 10)}%)`);
-    }
-  };
-  
-  if (settings.primaryColor) applyHSL('--theme-primary-600', settings.primaryColor);
-  if (settings.accentColor) applyHSL('--theme-accent-500', settings.accentColor);
-  if (settings.bgColor) applyHSL('--theme-base-50', settings.bgColor);
-  if (settings.textColor) applyHSL('--theme-text-main', settings.textColor);
+  const presetId = settings.activePresetId || 'fresh_majestic';
+  const preset = PRESETS[presetId] || PRESETS['fresh_majestic'];
+
+  let styleEl = document.getElementById('dynamic-theme');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'dynamic-theme';
+    document.head.appendChild(styleEl);
+  }
+
+  let css = ":root {\n";
+  Object.entries(preset.light).forEach(([key, val]) => {
+    css += `  --${key}: ${val.h} ${val.s}% ${val.l}%;\n`;
+  });
+  css += "}\n";
+
+  css += ".dark {\n";
+  Object.entries(preset.dark).forEach(([key, val]) => {
+    css += `  --${key}: ${val.h} ${val.s}% ${val.l}%;\n`;
+  });
+  css += "}\n";
+
+  styleEl.innerHTML = css;
 };
 
-function HSLPicker({ label, value, onChange }: any) {
-  if (!value || typeof value !== 'object' || value.h === undefined) return null;
-  return (
-    <div className="space-y-2 mb-4 p-4 bg-base-100/50 rounded-xl border border-base-200">
-      <div className="flex justify-between items-center mb-4">
-        <label className="text-xs font-bold uppercase tracking-widest text-text-muted">{label}</label>
-        <div className="flex gap-2 items-center">
-           <div className="w-6 h-6 rounded-md shadow-inner border border-base-200" style={{ backgroundColor: `hsl(${value.h}, ${value.s}%, ${value.l}%)` }} />
-           <span className="text-[10px] font-mono bg-base-200/50 px-2 py-1 rounded text-text-muted">hsl({value.h}, {value.s}%, {value.l}%)</span>
-        </div>
-      </div>
-      
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-text-light w-4">H</span>
-          <input type="range" min="0" max="360" value={value.h} onChange={e => onChange({...value, h: parseInt(e.target.value)})} className="flex-1 h-2 rounded-lg appearance-none bg-gradient-to-r from-red-500 via-green-500 to-blue-500 cursor-pointer" />
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-text-light w-4">S</span>
-          <input type="range" min="0" max="100" value={value.s} onChange={e => onChange({...value, s: parseInt(e.target.value)})} className="flex-1 h-2 rounded-lg appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, hsl(${value.h}, 0%, ${value.l}%), hsl(${value.h}, 100%, ${value.l}%))` }} />
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-text-light w-4">L</span>
-          <input type="range" min="0" max="100" value={value.l} onChange={e => onChange({...value, l: parseInt(e.target.value)})} className="flex-1 h-2 rounded-lg appearance-none cursor-pointer" style={{ background: `linear-gradient(to right, hsl(${value.h}, ${value.s}%, 0%), hsl(${value.h}, ${value.s}%, 100%))` }} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }: any) {
-  // Alias for compatibility within this component
-  const settings = appSettings || {};
-  const setSettings = setAppSettings;
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    if (appSettings) {
+      setSettings({
+        ...appSettings,
+        activePresetId: appSettings.activePresetId || 'fresh_majestic'
+      });
+    }
+  }, [JSON.stringify(appSettings)]);
   
   const [saving, setSaving] = React.useState(false);
   const [successMsg, setSuccessMsg] = React.useState('');
@@ -119,10 +125,11 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
   const [zoom, setZoom] = React.useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<any>(null);
 
-  // Live CSS Injection
   React.useEffect(() => {
-    if (settings) applyThemeColors(settings);
-  }, [settings?.primaryColor, settings?.accentColor, settings?.bgColor, settings?.textColor]);
+    if (settings) {
+       applyThemeColors(settings);
+    }
+  }, [settings?.activePresetId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSettings((prev: any) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -168,14 +175,10 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
     image.src = cropImage;
   };
 
-  const handleColorChange = (key: string, value: any) => {
-    setSettings((prev: any) => ({ ...prev, [key]: value }));
-  };
-
-  const applyPreset = (presetKey: keyof typeof PRESETS) => {
+  const applyPreset = (presetKey: string) => {
     setSettings((prev: any) => ({
       ...prev,
-      ...PRESETS[presetKey]
+      activePresetId: presetKey
     }));
   };
 
@@ -189,9 +192,12 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
         body: JSON.stringify(settings || {})
       });
       if (res.ok) {
-        setSuccessMsg('Appearance settings and branding applied successfully!');
+        setSuccessMsg('Appearance settings and themes applied successfully!');
         if (refreshData) {
           refreshData();
+        }
+        if (setAppSettings) {
+          setAppSettings();
         }
         setTimeout(() => setSuccessMsg(''), 5000);
       } else {
@@ -206,13 +212,13 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
   };
 
   if (!settings || Object.keys(settings).length === 0) {
-     return <div className="p-8 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary-600"/></div>;
+     return <div className="p-8 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>;
   }
 
   return (
-    <div className="p-8 relative">
-      <h3 className="text-2xl font-black text-text-main underline decoration-primary-500 decoration-4 underline-offset-8 mb-8">
-        Appearance & Branding Manager
+    <div className="p-4 md:p-8 relative">
+      <h3 className="text-xl md:text-2xl font-black text-foreground underline decoration-primary decoration-4 underline-offset-8 mb-8">
+        Appearance & Styling Engine
       </h3>
 
       {successMsg && (
@@ -225,83 +231,63 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         <div className="space-y-6">
           {/* TEMPLATES */}
-          <div className="p-6 bg-base-50 rounded-2xl border border-base-200 shadow-sm">
-            <h4 className="font-bold text-text-main mb-4 flex items-center gap-2">
-              <Palette className="w-5 h-5 text-primary-500" /> Preset Templates
+          <div className="p-6 bg-card rounded-2xl border border-border shadow-soft">
+            <h4 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <Palette className="w-5 h-5 text-primary" /> Global Presets
             </h4>
             <div className="flex flex-wrap gap-2">
-              <button 
-                onClick={() => applyPreset('classic_madrasah')} 
-                className="px-4 py-2 bg-emerald-700 text-white rounded-xl text-sm font-bold active:scale-95 transition-transform shadow-lg hover:bg-emerald-600"
-              >
-                Classic Madrasah
-              </button>
-              <button 
-                onClick={() => applyPreset('elegant_gold')} 
-                className="px-4 py-2 bg-amber-600 text-white rounded-xl text-sm font-bold active:scale-95 transition-transform shadow-lg hover:bg-amber-500"
-              >
-                Elegant Gold
-              </button>
-              <button 
-                onClick={() => applyPreset('deep_forest')} 
-                className="px-4 py-2 bg-slate-800 text-emerald-100 rounded-xl text-sm font-bold active:scale-95 transition-transform shadow-lg hover:bg-slate-700"
-              >
-                Deep Forest
-              </button>
+              {Object.entries(PRESETS).map(([key, preset]) => (
+                <button 
+                  key={key}
+                  onClick={() => applyPreset(key)} 
+                  className={`px-4 py-2 rounded-xl text-sm font-bold active:scale-95 transition-all shadow-soft border ${settings.activePresetId === key ? 'bg-primary text-primary-foreground border-primary scale-105' : 'bg-background text-foreground border-border hover:border-primary/50'}`}
+                >
+                  {preset.name}
+                </button>
+              ))}
             </div>
-            <p className="text-xs text-text-muted mt-3">Clicking a preset instantly updates the live preview. Don't forget to push "Save & Publish" to lock it in.</p>
           </div>
 
-          <div className="p-6 bg-base-50 rounded-2xl border border-base-200 shadow-sm">
-            <h4 className="font-bold text-text-main mb-6 flex items-center gap-2">
-              <Palette className="w-5 h-5 text-primary-500" /> Advanced Color Editor (HSL)
-            </h4>
-            <HSLPicker label="Primary Color" value={settings.primaryColor} onChange={(v:any) => handleColorChange('primaryColor', v)} />
-            <HSLPicker label="Accent Color" value={settings.accentColor} onChange={(v:any) => handleColorChange('accentColor', v)} />
-            <HSLPicker label="Background Base" value={settings.bgColor} onChange={(v:any) => handleColorChange('bgColor', v)} />
-            <HSLPicker label="Main Text Color" value={settings.textColor} onChange={(v:any) => handleColorChange('textColor', v)} />
-          </div>
-
-          <div className="p-6 bg-base-50 rounded-2xl border border-base-200 shadow-sm">
-            <h4 className="font-bold text-text-main mb-4 flex items-center gap-2">
-              <ImageIcon className="w-5 h-5 text-primary-500" /> Dynamic Branding
+          <div className="p-6 bg-card rounded-2xl border border-border shadow-soft">
+            <h4 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-primary" /> Dynamic Branding
             </h4>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-text-main mb-1">Application Name</label>
-                <input type="text" name="appName" value={settings.appName} onChange={handleChange} className="w-full bg-base-100 border border-base-200 rounded-xl px-4 py-3 text-sm" placeholder="e.g. Mamba'ul Huda Student Portal" />
+                <label className="block text-sm font-bold text-foreground mb-1">Application Name</label>
+                <input type="text" name="appName" value={settings.appName} onChange={handleChange} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:ring focus:ring-primary/50" placeholder="e.g. Mamba'ul Huda Student Portal" />
               </div>
               <div>
-                <label className="block text-sm font-bold text-text-main mb-1">Badge Title</label>
-                <input type="text" name="badgeTitle" value={settings.badgeTitle} onChange={handleChange} className="w-full bg-base-100 border border-base-200 rounded-xl px-4 py-3 text-sm" placeholder="e.g. Season 2 Active" />
+                <label className="block text-sm font-bold text-foreground mb-1">Badge Title</label>
+                <input type="text" name="badgeTitle" value={settings.badgeTitle} onChange={handleChange} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:ring focus:ring-primary/50" placeholder="e.g. Season 2 Active" />
               </div>
               <div>
-                <label className="block text-sm font-bold text-text-main mb-1">Hero Headline</label>
-                <input type="text" name="heroTitle" value={settings.heroTitle} onChange={handleChange} className="w-full bg-base-100 border border-base-200 rounded-xl px-4 py-3 text-sm" placeholder="e.g. Global Leaderboard" />
+                <label className="block text-sm font-bold text-foreground mb-1">Hero Headline</label>
+                <input type="text" name="heroTitle" value={settings.heroTitle} onChange={handleChange} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:ring focus:ring-primary/50" placeholder="e.g. Global Leaderboard" />
               </div>
               <div>
-                <label className="block text-sm font-bold text-text-main mb-1">Hero Subtitle</label>
-                <textarea rows={3} name="heroSubtitle" value={settings.heroSubtitle} onChange={(e:any) => handleChange(e)} className="w-full bg-base-100 border border-base-200 rounded-xl px-4 py-3 text-sm" />
+                <label className="block text-sm font-bold text-foreground mb-1">Hero Subtitle</label>
+                <textarea rows={3} name="heroSubtitle" value={settings.heroSubtitle} onChange={(e:any) => handleChange(e)} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:ring focus:ring-primary/50" />
               </div>
               <div>
-                <label className="block text-sm font-bold text-text-main mb-2">Logo</label>
+                <label className="block text-sm font-bold text-foreground mb-2">Logo</label>
                 <div className="flex gap-4 items-center">
                   <div className="relative inline-block group">
                     {settings.logoUrl ? (
-                      <ImageFallback src={settings.logoUrl} alt="Logo" variant="logo" className="w-20 h-20 rounded-2xl border-4 border-base-100 bg-base-200 shadow-sm object-cover" wrapperClassName="w-20 h-20" />
+                      <ImageFallback src={settings.logoUrl} alt="Logo" variant="logo" className="w-20 h-20 rounded-2xl border-4 border-border bg-secondary shadow-soft object-cover" wrapperClassName="w-20 h-20" />
                     ) : (
-                      <div className="w-20 h-20 rounded-2xl border-4 border-base-100 bg-base-200 shadow-sm flex items-center justify-center text-primary-500">
+                      <div className="w-20 h-20 rounded-2xl border-4 border-border bg-secondary shadow-soft flex items-center justify-center text-primary">
                         <ImageIcon className="w-8 h-8 opacity-50" />
                       </div>
                     )}
-                    <button type="button" onClick={() => logoInputRef.current?.click()} className="absolute inset-0 bg-base-900/60 rounded-2xl flex items-center justify-center text-base-50 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm" title="Upload Logo">
+                    <button type="button" onClick={() => logoInputRef.current?.click()} className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm" title="Upload Logo">
                       <ImageIcon className="w-6 h-6" />
                     </button>
                     <input type="file" ref={logoInputRef} onChange={handleLogoUpload} accept="image/*" className="hidden" />
                   </div>
                   <div className="flex-1">
-                    <input type="text" name="logoUrl" value={settings.logoUrl} onChange={handleChange} className="w-full bg-base-100 border border-base-200 rounded-xl px-4 py-3 text-sm mb-2" placeholder="https://example.com/logo.png" />
-                    <p className="text-[10px] text-text-light font-bold">Square image recommended. Max size 512x512, compressed via WebP.</p>
+                    <input type="text" name="logoUrl" value={settings.logoUrl || ''} onChange={handleChange} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm mb-2" placeholder="https://example.com/logo.png" />
+                    <p className="text-[10px] text-muted-foreground font-bold">Square image recommended. Max size 512x512, compressed via WebP.</p>
                   </div>
                 </div>
               </div>
@@ -311,7 +297,7 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
           <button 
             onClick={handleSave} 
             disabled={saving}
-            className="w-full bg-primary-600 text-base-50 px-8 py-5 rounded-2xl font-black shadow-lg shadow-primary-200 flex justify-center items-center gap-2 hover:bg-primary-700 active:scale-95 transition-all text-lg"
+            className="w-full bg-primary text-primary-foreground px-8 py-5 rounded-2xl font-black shadow-primary-glow flex justify-center items-center gap-2 hover:opacity-90 active:scale-95 transition-all text-lg"
           >
             {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
             {saving ? 'Synchronizing to Firebase...' : 'Save & Publish Theme Engine'}
@@ -321,53 +307,58 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
         {/* LIVE PREVIEW PANE */}
         <div className="space-y-6">
           <div className="sticky top-8">
-             <h4 className="font-black text-text-main mb-4 uppercase tracking-widest text-sm">Live Sandbox Preview</h4>
+             <h4 className="font-black text-foreground mb-4 uppercase tracking-widest text-sm">Live Sandbox Preview</h4>
              
-             {/* Preview: Navbar mini */}
-             <div className="bg-base-50 border border-base-200 rounded-2xl p-4 mb-4 shadow-sm flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {settings.logoUrl ? (
-                    <ImageFallback src={settings.logoUrl} alt="" variant="logo" className="w-8 h-8 rounded-lg object-contain" wrapperClassName="w-8 h-8" />
-                  ) : (
-                    <div className="bg-primary-600 p-2 rounded-lg"><Trophy className="w-4 h-4 text-base-50" /></div>
-                  )}
-                  <span className="font-bold text-text-main">{settings.appName}</span>
+             <div className="bg-background border border-border rounded-xl p-6 mb-4 shadow-soft">
+                {/* Preview: Navbar mini */}
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    {settings.logoUrl ? (
+                      <ImageFallback src={settings.logoUrl} alt="" variant="logo" className="w-10 h-10 rounded-xl object-contain" wrapperClassName="w-10 h-10" />
+                    ) : (
+                      <div className="bg-primary p-2.5 rounded-xl shadow-soft"><Trophy className="w-5 h-5 text-primary-foreground" /></div>
+                    )}
+                    <span className="font-black text-foreground text-lg">{settings.appName || 'Your App'}</span>
+                  </div>
+                  <div className="w-10 h-10 bg-secondary border-2 border-background shadow-soft rounded-full" />
                 </div>
-                <div className="w-8 h-8 bg-base-200 rounded-full" />
-             </div>
 
-             {/* Preview: Hero */}
-             <div className="bg-gradient-to-br from-primary-600 to-primary-800 p-8 rounded-[2rem] text-base-50 shadow-2xl relative overflow-hidden mb-6">
-                <div className="absolute top-0 right-0 opacity-20 transform translate-x-1/4 -translate-y-1/4 rotate-12 mix-blend-overlay">
-                  {settings.logoUrl ? <ImageFallback src={settings.logoUrl} alt="" variant="logo" className="w-48 h-48" wrapperClassName="w-48 h-48" /> : <Trophy className="w-48 h-48" />}
-                </div>
-                <div className="relative z-10 space-y-3">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-base-100/10 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm">
-                    <Flame className="w-3 h-3 text-accent-500" /> {settings.badgeTitle}
+                {/* Preview: Hero */}
+                <div className="bg-card border border-border p-8 rounded-xl shadow-soft relative overflow-hidden mb-6 flex flex-col justify-center min-h-[220px]">
+                  <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 rotate-12">
+                    {settings.logoUrl ? <ImageFallback src={settings.logoUrl} alt="" variant="logo" className="w-48 h-48 drop-shadow-md" wrapperClassName="w-48 h-48" /> : <Trophy className="w-48 h-48 text-foreground" />}
                   </div>
-                  <h1 className="text-3xl font-black tracking-tight leading-tight">{settings.heroTitle}</h1>
-                  <p className="text-sm opacity-80 leading-relaxed max-w-sm">
-                    {settings.heroSubtitle}
-                  </p>
+                  <div className="relative z-10 space-y-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary text-secondary-foreground rounded-full text-xs font-bold uppercase tracking-widest">
+                      <Flame className="w-4 h-4 text-destructive" /> {settings.badgeTitle || 'Badge'}
+                    </div>
+                    <h1 className="text-3xl font-black tracking-tight leading-tight text-card-foreground">{settings.heroTitle || 'Headline'}</h1>
+                    <p className="text-sm font-medium text-muted-foreground leading-relaxed max-w-sm">
+                      {settings.heroSubtitle || 'Subtitle about your application.'}
+                    </p>
+                    <button className="bg-accent text-accent-foreground px-6 py-3 rounded-xl font-bold shadow-soft active:scale-95 transition-transform mt-2">
+                       Explore Now
+                    </button>
+                  </div>
                 </div>
-             </div>
 
-             {/* Preview: Card */}
-             <div className="bg-base-50 rounded-2xl p-6 border border-base-200 shadow-sm transition-all hover:border-primary-300 hover:shadow-lg">
-                <div className="flex gap-4 items-center">
-                  <div className="w-12 h-12 bg-base-200 rounded-full flex items-center justify-center font-bold text-text-muted">
-                    1
-                  </div>
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary-200 to-primary-100 rounded-full flex justify-center items-center overflow-hidden">
-                     <UserIcon className="w-6 h-6 text-primary-500" />
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-text-main text-lg">Student Example</h5>
-                    <p className="text-xs font-bold text-text-light uppercase tracking-widest">Web Dev Track</p>
-                  </div>
-                  <div className="ml-auto text-right">
-                    <div className="text-xl font-black text-accent-500">1,250</div>
-                    <div className="text-[10px] text-text-light font-bold uppercase tracking-widest">PTS</div>
+                {/* Preview: Card */}
+                <div className="bg-card rounded-xl p-5 border border-border shadow-soft transition-all hover:border-primary/50 hover:shadow-primary-glow cursor-pointer group">
+                  <div className="flex gap-4 items-center">
+                    <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center font-bold text-muted-foreground group-hover:text-primary transition-colors">
+                      1
+                    </div>
+                    <div className="w-14 h-14 bg-primary/10 rounded-full flex justify-center items-center overflow-hidden border border-primary/20">
+                       <UserIcon className="w-7 h-7 text-primary" />
+                    </div>
+                    <div>
+                      <h5 className="font-bold text-card-foreground text-lg mb-0.5">Student Example</h5>
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Web Dev Track</p>
+                    </div>
+                    <div className="ml-auto text-right">
+                      <div className="text-2xl font-black text-foreground">1,250</div>
+                      <div className="text-[10px] text-primary font-bold uppercase tracking-widest">PTS</div>
+                    </div>
                   </div>
                 </div>
              </div>
@@ -377,7 +368,7 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
 
       {/* Cropper Overlay */}
       {cropImage && (
-        <div className="fixed inset-0 bg-base-900 z-[100] flex flex-col mt-0 border-t-0 p-0 shadow-none">
+        <div className="fixed inset-0 bg-background/90 z-[100] flex flex-col mt-0 border-t-0 p-0 shadow-none backdrop-blur-md">
           <div className="flex-1 relative">
             <Cropper
               image={cropImage}
@@ -391,9 +382,9 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
               onZoomChange={setZoom}
             />
           </div>
-          <div className="p-4 bg-base-900 border-t border-slate-700 flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="p-4 bg-card border-t border-border flex flex-col sm:flex-row gap-4 items-center justify-between shadow-t-2xl">
             <div className="flex items-center gap-4 w-full sm:w-1/2">
-              <ZoomOut className="text-slate-400 w-5 h-5 flex-shrink-0" />
+              <ZoomOut className="text-muted-foreground w-5 h-5 flex-shrink-0" />
               <input
                 type="range"
                 value={zoom}
@@ -402,9 +393,9 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
                 step={0.1}
                 aria-labelledby="Zoom"
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary-500"
+                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
               />
-              <ZoomIn className="text-slate-400 w-5 h-5 flex-shrink-0" />
+              <ZoomIn className="text-muted-foreground w-5 h-5 flex-shrink-0" />
             </div>
             <div className="flex gap-4">
               <button 
@@ -412,15 +403,15 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
                   setCropImage(null);
                   if (logoInputRef.current) logoInputRef.current.value = '';
                 }} 
-                className="px-6 py-2 rounded-xl font-bold text-slate-300 hover:text-white transition-colors"
+                className="px-6 py-2 rounded-xl font-bold text-muted-foreground hover:text-foreground transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={confirmCrop} 
-                className="bg-primary-600 px-6 py-2 rounded-xl text-white font-black hover:bg-primary-700 transition-colors"
+                className="bg-primary px-6 py-2 rounded-xl text-primary-foreground font-black hover:opacity-90 shadow-soft transition-opacity"
               >
-                Apply Crop
+                Apply Custom Crop
               </button>
             </div>
           </div>
@@ -430,5 +421,3 @@ export function AdminAppearanceTab({ refreshData, appSettings, setAppSettings }:
     </div>
   );
 }
-
-

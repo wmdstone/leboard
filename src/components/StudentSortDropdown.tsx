@@ -50,8 +50,8 @@ export function StudentSortDropdown({
   const isDark = variant === 'dark';
 
   const btnCls = isDark
-    ? 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-base-50/20 bg-base-900/30 text-base-50 hover:bg-base-900/50 backdrop-blur-md text-[11px] font-bold transition-all whitespace-nowrap'
-    : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-base-200 bg-base-100 text-text-main hover:border-primary-300 text-[11px] font-bold transition-all whitespace-nowrap';
+    ? 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-base-50/20 bg-base-900/30 text-primary-foreground hover:bg-base-900/50 backdrop-blur-md text-[11px] font-bold transition-all whitespace-nowrap'
+    : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-foreground hover:border-primary-300 text-[11px] font-bold transition-all whitespace-nowrap';
 
   const DirIcon = current.direction === 'asc' ? ArrowUp : current.direction === 'desc' ? ArrowDown : ArrowDownUp;
 
@@ -63,8 +63,8 @@ export function StudentSortDropdown({
         <DirIcon className="h-3.5 w-3.5 opacity-70 shrink-0" />
       </button>
       {open && (
-        <div className="absolute left-0 mt-2 w-48 sm:w-56 bg-base-100 border border-base-200 rounded-2xl shadow-xl z-50 p-1.5 sm:p-2">
-          <div className="text-[10px] font-black uppercase tracking-widest text-text-light px-3 pt-1 pb-2">
+        <div className="absolute left-0 mt-2 w-48 sm:w-56 bg-card border border-border rounded-2xl shadow-soft z-50 p-1.5 sm:p-2">
+          <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-3 pt-1 pb-2">
             Sort by
           </div>
           {options.map((opt) => {
@@ -80,8 +80,8 @@ export function StudentSortDropdown({
                 }}
                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-left text-sm transition-colors ${
                   active
-                    ? 'bg-primary-50 text-primary-700 font-bold'
-                    : 'hover:bg-base-200/50 text-text-main'
+                    ? 'bg-primary/10 text-primary-700 font-bold'
+                    : 'hover:bg-secondary/50 text-foreground'
                 }`}
               >
                 <span className="flex items-center gap-2 min-w-0">

@@ -4,11 +4,15 @@ import { ArrowLeft, Target, Flame, Circle, CheckCircle2, ChevronDown, CheckSquar
 import { TimeRangeValue, createDefaultTimeRangeValue, TimeRangeFilter } from '../TimeRangeFilter';
 import { DateRange, isWithinRange, POINTS_CAPTION } from '../../lib/timeRanges';
 import { RankMovement } from '../ui/RankMovement';
-import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip as RechartsTooltip, Line, BarChart, Bar } from 'recharts';
+import { ResponsiveContainer, LineChart, XAxis, YAxis, Line, BarChart, Bar } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { ImageFallback, dicebearAvatar } from '../ImageFallback';
 import type { Student, MasterGoal, AssignedGoal, Category } from '../../lib/types';
 import { ActionMenu } from '../ui/ActionMenu';
 import { ConfirmModal } from '../ui/ConfirmModal';
+import { Button } from '@/components/ui/button';
 
 export // --- STUDENT PROFILE PAGE (with collapsible goals) ---
 function StudentProfilePage({ studentId, students, masterGoals, categories, calculateTotalPoints, navigateTo }: {
@@ -149,7 +153,7 @@ function StudentProfilePage({ studentId, students, masterGoals, categories, calc
     return data;
   }, [student?.assignedGoals, masterGoals, historyFilterValue]);
 
-  if (!student) return <div className="text-center py-20 font-bold text-text-light underline cursor-pointer" onClick={() => navigateTo('/')}>Go Back Home</div>;
+  if (!student) return <div className="text-center py-20 font-bold text-muted-foreground underline cursor-pointer" onClick={() => navigateTo('/')}>Go Back Home</div>;
 
   const totalPoints = calculateTotalPoints(student.assignedGoals);
   const rankedStudents = [...students].map(s => ({...s, totalPts: calculateTotalPoints(s.assignedGoals || [])})).sort((a,b) => b.totalPts - a.totalPts);
@@ -175,131 +179,135 @@ function StudentProfilePage({ studentId, students, masterGoals, categories, calc
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <button onClick={() => navigateTo('/')} className="flex items-center gap-2 text-text-light hover:text-primary-600 transition-colors font-bold text-xs uppercase tracking-[0.2em] mb-4">
-        <ArrowLeft className="h-4 w-4" /> Return to Board
-      </button>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <Button variant="ghost" onClick={() => navigateTo('/')} className="hover:text-primary transition-colors font-bold text-xs uppercase tracking-[0.2em] mb-2 -ml-2">
+        <ArrowLeft className="h-4 w-4 mr-2" /> Return to Board
+      </Button>
 
-      <div className="bg-base-100 rounded-[2.5rem] p-8 shadow-xl border border-base-200 relative overflow-hidden group">
-        <div className="absolute top-0 left-0 w-full h-32 bg-primary-600 group-hover:h-36 transition-all duration-500"></div>
-        <div className="relative z-10 flex flex-col items-center text-center mt-8">
+      <div className="bg-card rounded-xl p-4 sm:p-8 shadow-soft border border-border relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-full h-32 bg-primary/10 group-hover:bg-primary/20 transition-all duration-500"></div>
+        <div className="relative z-10 flex flex-col items-center text-center mt-4">
           <div className="relative">
-            <ImageFallback src={student.photo || dicebearAvatar(student.name)} alt={student.name} variant="avatar" className="w-32 h-32 rounded-[2rem] border-8 border-base-100 bg-base-100 object-cover" wrapperClassName="w-32 h-32 rounded-[2rem] shadow-2xl" />
-            <div className="absolute -bottom-2 -right-2 bg-accent-500 p-2 rounded-xl text-base-50 shadow-lg">
-              <CheckSquare className="w-5 h-5" />
+            <ImageFallback src={student.photo || dicebearAvatar(student.name)} alt={student.name} variant="avatar" className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-background bg-background object-cover shadow-soft" wrapperClassName="w-24 h-24 sm:w-32 sm:h-32 rounded-full shadow-soft" />
+            <div className="absolute -bottom-2 -right-2 bg-primary p-2 rounded-full text-primary-foreground shadow-soft">
+              <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
           <div className="mt-6 space-y-2">
-            <h1 className="text-3xl font-black text-text-main leading-tight">{student.name}</h1>
-            <p className="text-text-muted text-sm max-w-md mx-auto italic">"{student.bio}"</p>
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground leading-tight">{student.name}</h1>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto italic">"{student.bio}"</p>
           </div>
           
           <div className="flex gap-4 mt-8 w-full">
-            <div className="flex-1 bg-base-50 rounded-2xl p-4 border border-base-200 flex flex-col justify-center relative">
-              <div className="text-[10px] font-black text-text-light uppercase tracking-widest mb-1">Rank</div>
-              <div className="flex items-center justify-center gap-3">
-                <div className="text-2xl font-black text-primary-600">#{currentRank}</div>
-                <RankMovement currentRank={currentRank} previousRank={student.previousRank} />
-              </div>
-            </div>
-            <div className="flex-1 bg-primary-600 rounded-2xl p-4 shadow-lg shadow-primary-200">
-              <div className="text-[10px] font-black text-primary-200 uppercase tracking-widest mb-1">{POINTS_CAPTION.ALL_TIME}</div>
-              <div className="text-2xl font-black text-base-50">{totalPoints}</div>
-            </div>
+            <Card className="flex-1 bg-secondary/20 shadow-none border-border">
+              <CardContent className="p-4 flex flex-col justify-center items-center">
+                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Rank</div>
+                <div className="flex items-center justify-center gap-3">
+                  <div className="text-2xl font-black text-foreground">#{currentRank}</div>
+                  <RankMovement currentRank={currentRank} previousRank={student.previousRank} />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="flex-1 bg-primary border-primary shadow-primary-glow">
+              <CardContent className="p-4 flex flex-col justify-center items-center">
+                <div className="text-[10px] font-black text-primary-foreground/80 uppercase tracking-widest mb-1">{POINTS_CAPTION.ALL_TIME}</div>
+                <div className="text-2xl font-black text-primary-foreground">{totalPoints}</div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
 
       {historicalData.length > 0 && (
-        <div className="bg-base-100 rounded-3xl border border-base-200 p-6 shadow-sm mb-6">
-          <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-            <h4 className="font-bold text-text-main flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary-500" /> Progression History
+        <Card className="rounded-xl shadow-soft border-border overflow-hidden">
+          <CardHeader className="p-6 border-b border-border flex flex-row justify-between items-center gap-4 flex-wrap space-y-0">
+            <h4 className="font-bold text-foreground flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" /> Progression History
             </h4>
             <TimeRangeFilter value={historyFilterValue} onChange={setHistoryFilterValue} />
-          </div>
-          <div className="h-48 w-full min-w-0" style={{ minHeight: "192px" }}>
-            <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
-              <LineChart data={historicalData}>
-                <XAxis dataKey="date" stroke="#888888" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888888" fontSize={10} tickLine={false} axisLine={false} width={30} tickFormatter={value => value >= 1000 ? `${(value/1000).toFixed(1)}k` : value} />
-                <RechartsTooltip 
-                  contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }} 
-                  itemStyle={{ color: 'var(--theme-accent-500)', fontWeight: 'bold' }}
-                />
-                <Line type="monotone" dataKey="points" stroke="var(--theme-accent-500)" strokeWidth={4} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 8, strokeWidth: 0 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-48 w-full min-w-0" style={{ minHeight: "192px" }}>
+              <ChartContainer config={{ points: { label: "Points", color: "hsl(var(--primary))" } }} className="h-full w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={historicalData}>
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} width={30} tickFormatter={value => value >= 1000 ? `${(value/1000).toFixed(1)}k` : value} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line type="monotone" dataKey="points" stroke="var(--color-points)" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: "var(--color-points)" }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      <div className="bg-base-100 rounded-3xl border border-base-200 p-6 shadow-sm mb-6">
-        <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-          <h4 className="font-bold text-text-main flex items-center gap-2">
-            <CheckSquare className="w-5 h-5 text-accent-500" /> Activity Timeline
-          </h4>
+      <Card className="rounded-xl shadow-soft border-border overflow-hidden mb-6">
+        <CardHeader className="p-6 border-b border-border flex flex-row justify-between items-center gap-4 flex-wrap space-y-0">
+          <div>
+            <h4 className="font-bold text-foreground flex items-center gap-2 mb-2">
+              <CheckSquare className="w-5 h-5 text-primary" /> Activity Timeline
+            </h4>
+            <p className="text-xs text-muted-foreground">
+              Daily completed goals.
+            </p>
+          </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-light">
-              <span className="px-2 py-1 rounded-lg bg-base-50 border border-base-200">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+              <Badge variant="secondary" className="px-2 py-1 rounded-lg">
                 {timelineData.totalGoals} goals
-              </span>
-              <span className="px-2 py-1 rounded-lg bg-base-50 border border-base-200">
+              </Badge>
+              <Badge variant="secondary" className="px-2 py-1 rounded-lg">
                 {timelineData.totalPoints} pts
-              </span>
+              </Badge>
             </div>
             <TimeRangeFilter value={timelineFilterValue} onChange={setTimelineFilterValue} />
           </div>
-        </div>
-        <p className="text-xs text-text-muted mb-3">
-          Daily completed goals — useful to validate weekly &amp; monthly leaderboard rankings.
-        </p>
-        <div className="h-48 w-full min-w-0" style={{ minHeight: "192px" }}>
-            <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
-            <BarChart data={timelineData.rows}>
-              <XAxis
-                dataKey="date"
-                stroke="#888888"
-                fontSize={10}
-                tickLine={false}
-                axisLine={false}
-                interval={timelineData.days > 14 ? Math.ceil(timelineData.days / 10) : 0}
-              />
-              <YAxis
-                stroke="#888888"
-                fontSize={10}
-                tickLine={false}
-                axisLine={false}
-                width={30}
-                allowDecimals={false}
-              />
-              <RechartsTooltip
-                contentStyle={{
-                  borderRadius: '1rem',
-                  border: 'none',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                }}
-                formatter={(value: any, name: any) => [value, name === 'goals' ? 'Goals' : 'Points']}
-              />
-              <Bar dataKey="goals" fill="var(--theme-accent-500)" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="h-48 w-full min-w-0" style={{ minHeight: "192px" }}>
+            <ChartContainer config={{ goals: { label: "Goals", color: "hsl(var(--primary))" } }} className="h-full w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={timelineData.rows}>
+                  <XAxis
+                    dataKey="date"
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    interval={timelineData.days > 14 ? Math.ceil(timelineData.days / 10) : 0}
+                  />
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    width={30}
+                    allowDecimals={false}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="goals" fill="var(--color-goals)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-black text-text-main flex items-center gap-2 px-2">
-          <Target className="w-6 h-6 text-primary-500" /> Assignment Board
+        <h2 className="text-xl font-black text-foreground flex items-center gap-2 px-2">
+          <Target className="w-6 h-6 text-primary" /> Assignment Board
         </h2>
         
         {Object.keys(groupedGoals).length === 0 ? (
-          <div className="bg-base-100 rounded-3xl border border-base-200 p-8 text-center shadow-sm">
-            <div className="w-16 h-16 bg-base-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Target className="w-8 h-8 text-text-light" />
+          <Card className="rounded-xl p-8 text-center shadow-soft border-border">
+            <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Target className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-bold text-text-main mb-2">No Goals Yet</h3>
-            <p className="text-text-muted text-sm max-w-sm mx-auto">This student hasn't been assigned any learning goals. Head to the Admin panel to assign their first track.</p>
-          </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">No Goals Yet</h3>
+            <p className="text-muted-foreground text-sm max-w-sm mx-auto">This student hasn't been assigned any learning goals. Head to the Admin panel to assign their first track.</p>
+          </Card>
         ) : (
           Object.entries(groupedGoals).map(([catId, goals]) => {
             const category = categories.find(c => c.id === catId);
@@ -308,33 +316,33 @@ function StudentProfilePage({ studentId, students, masterGoals, categories, calc
             const progress = goals.length > 0 ? (completedCount / goals.length) * 100 : 0;
 
             return (
-              <div key={catId} className="bg-base-100 rounded-3xl border border-base-200 overflow-hidden shadow-sm">
+              <Card key={catId} className="rounded-xl border-border overflow-hidden shadow-soft">
                 <button 
                   onClick={() => toggleCategory(catId)}
-                  className="w-full flex items-center justify-between p-5 text-left hover:bg-base-50 transition-colors"
+                  className="w-full flex items-center justify-between p-5 text-left hover:bg-secondary/30 transition-colors"
                 >
                   <div className="flex flex-1 items-center gap-4">
-                    <div className={`p-3 rounded-xl ${isExpanded ? 'bg-primary-600 text-base-50' : 'bg-base-50 text-text-light'}`}>
+                    <div className={`p-3 rounded-xl ${isExpanded ? 'bg-primary text-primary-foreground shadow-soft' : 'bg-secondary text-muted-foreground'}`}>
                       <FolderTree className="h-6 w-6" />
                     </div>
                     <div className="flex-1 min-w-0 pr-4">
-                      <h3 className="font-bold text-text-main line-clamp-2 break-words leading-tight mb-1" title={category?.name}>{category?.name}</h3>
+                      <h3 className="font-bold text-foreground line-clamp-2 break-words leading-tight mb-1" title={category?.name}>{category?.name}</h3>
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2 bg-base-200 rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                           <motion.div 
-                            className="h-full bg-accent-500 rounded-full"
+                            className="h-full bg-primary rounded-full"
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
                             transition={{ duration: 1, ease: 'easeOut' }}
                           />
                         </div>
-                        <span className="text-[10px] font-black text-text-light uppercase tracking-widest min-w-[3rem] text-right">
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest min-w-[3rem] text-right">
                           {Math.round(progress)}%
                         </span>
                       </div>
                     </div>
                   </div>
-                  {isExpanded ? <ChevronUp className="h-5 w-5 text-text-light shrink-0" /> : <ChevronDown className="h-5 w-5 text-text-light shrink-0" />}
+                  {isExpanded ? <ChevronUp className="h-5 w-5 text-muted-foreground shrink-0" /> : <ChevronDown className="h-5 w-5 text-muted-foreground shrink-0" />}
                 </button>
 
                 <AnimatePresence>
@@ -343,41 +351,41 @@ function StudentProfilePage({ studentId, students, masterGoals, categories, calc
                       initial={{ height: 0 }}
                       animate={{ height: 'auto' }}
                       exit={{ height: 0 }}
-                      className="overflow-hidden bg-base-200/50 border-t border-base-200"
+                      className="overflow-hidden bg-background border-t border-border"
                     >
                       <div className="p-4 space-y-3">
                         {goals.map(goal => (
-                          <div key={goal.id} className="flex items-center gap-4 bg-base-100 p-4 rounded-2xl border border-base-200 shadow-sm transition-all hover:border-primary-100 relative overflow-hidden">
+                          <div key={goal.id} className="flex items-center gap-4 bg-card p-4 rounded-2xl border border-border shadow-soft transition-all hover:border-primary/50 relative overflow-hidden">
                             {/* Accent line for completed goals */}
-                            {goal.completed && <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent-500" />}
+                            {goal.completed && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
                             
-                            <div className={`shrink-0 z-10 ${goal.completed ? 'text-accent-500' : 'text-text-light'}`}>
-                              {goal.completed ? <CheckCircle2 className="w-6 h-6 fill-accent-50" /> : <Circle className="w-6 h-6" />}
+                            <div className={`shrink-0 z-10 ${goal.completed ? 'text-primary' : 'text-muted-foreground'}`}>
+                              {goal.completed ? <CheckCircle2 className="w-6 h-6 fill-primary-foreground" /> : <Circle className="w-6 h-6" />}
                             </div>
                             <div className="flex-1 min-w-0 z-10">
                               <h4 
-                                className={`text-[clamp(0.875rem,3.5vw,1rem)] font-bold line-clamp-2 break-words leading-tight ${goal.completed ? 'text-text-muted line-through decoration-slate-300' : 'text-text-main'}`}
+                                className={`text-[clamp(0.875rem,3.5vw,1rem)] font-bold line-clamp-2 break-words leading-tight ${goal.completed ? 'text-muted-foreground line-through decoration-muted-foreground/30' : 'text-foreground'}`}
                                 title={goal.title}
                               >
                                 {goal.title}
                               </h4>
                               <p 
-                                className="text-[clamp(0.65rem,2.5vw,0.75rem)] text-text-muted line-clamp-2 break-words mt-1" 
+                                className="text-[clamp(0.65rem,2.5vw,0.75rem)] text-muted-foreground line-clamp-2 break-words mt-1" 
                                 title={goal.description}
                               >
                                 {goal.description}
                               </p>
                             </div>
-                            <div className={`text-xs font-black z-10 px-2 py-1 rounded-lg ${goal.completed ? 'text-accent-600 bg-accent-50' : 'text-primary-600 bg-primary-50 border border-primary-100/50'}`}>
+                            <Badge variant={goal.completed ? "secondary" : "default"} className="z-10 px-2 py-1">
                               +{goal.points !== undefined ? goal.points : (goal as any).pointValue || 0} pts
-                            </div>
+                            </Badge>
                           </div>
                         ))}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </Card>
             );
           })
         )}

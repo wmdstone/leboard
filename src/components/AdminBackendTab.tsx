@@ -97,20 +97,20 @@ export function AdminBackendTab({ refreshData }: Props) {
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6">
       <header className="flex items-start gap-3">
-        <div className="w-11 h-11 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
           <Database className="w-5 h-5" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-xl sm:text-2xl font-black text-text-main">
+          <h2 className="text-xl sm:text-2xl font-black text-foreground">
             Backend & Database
           </h2>
-          <p className="text-sm text-text-muted font-medium">
+          <p className="text-sm text-muted-foreground font-medium">
             Manage connections, browse data, and copy data between databases.
           </p>
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-2 border-b border-base-200 pb-2">
+      <div className="flex flex-wrap gap-2 border-b border-border pb-2">
         {[
           { id: "connections", label: "Connections", icon: Server },
           { id: "crud", label: "Browse & Edit", icon: Edit3 },
@@ -121,8 +121,8 @@ export function AdminBackendTab({ refreshData }: Props) {
             onClick={() => setSection(s.id as any)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
               section === s.id
-                ? "bg-primary-600 text-white"
-                : "bg-base-100 text-text-muted hover:bg-base-200"
+                ? "bg-primary text-white"
+                : "bg-card text-muted-foreground hover:bg-secondary"
             }`}
           >
             <s.icon className="w-4 h-4" />
@@ -204,8 +204,8 @@ function ConnectionsSection({
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h3 className="font-black text-text-main">Database Connections</h3>
-          <p className="text-xs text-text-muted">
+          <h3 className="font-black text-foreground">Database Connections</h3>
+          <p className="text-xs text-muted-foreground">
             The active connection is used by the entire app.
           </p>
         </div>
@@ -216,7 +216,7 @@ function ConnectionsSection({
               setAddProvider("supabase");
               setShowAdd(true);
             }}
-            className="bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-primary-700 active:scale-95 transition-all"
+            className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-primary-700 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4" /> Add Supabase
           </button>
@@ -253,14 +253,14 @@ function ConnectionsSection({
               key={c.id}
               className={`rounded-2xl border p-4 flex flex-col gap-3 ${
                 isActive
-                  ? "border-primary-600 bg-primary-50/40"
-                  : "border-base-200 bg-base-100"
+                  ? "border-primary-600 bg-primary/10/40"
+                  : "border-border bg-card"
               }`}
             >
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-text-main truncate">{c.label}</span>
+                    <span className="font-bold text-foreground truncate">{c.label}</span>
                     <span
                       className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${
                         c.provider === "firebase"
@@ -276,12 +276,12 @@ function ConnectionsSection({
                       </span>
                     )}
                     {c.isDefault && (
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-text-muted bg-base-200 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
                         Default
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-text-muted truncate font-mono">{c.url || "—"}</p>
+                  <p className="text-xs text-muted-foreground truncate font-mono">{c.url || "—"}</p>
                   {testResult[c.id] && (
                     <p
                       className={`text-xs mt-1 font-bold ${
@@ -299,7 +299,7 @@ function ConnectionsSection({
                   <button
                     onClick={() => handleTest(c)}
                     disabled={testing === c.id}
-                    className="text-xs font-bold px-3 py-1.5 rounded-lg bg-base-200 text-text-main hover:bg-base-200/80 active:scale-95 transition-all flex items-center gap-1"
+                    className="text-xs font-bold px-3 py-1.5 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 active:scale-95 transition-all flex items-center gap-1"
                   >
                     {testing === c.id ? (
                       <Loader2 className="w-3 h-3 animate-spin" />
@@ -311,7 +311,7 @@ function ConnectionsSection({
                   {!isActive && (
                     <button
                       onClick={() => handleSwitch(c.id)}
-                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 active:scale-95 transition-all"
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-primary text-white hover:bg-primary-700 active:scale-95 transition-all"
                     >
                       Use this
                     </button>
@@ -323,7 +323,7 @@ function ConnectionsSection({
                           setEditing(c);
                           setShowAdd(true);
                         }}
-                        className="p-2 rounded-lg bg-base-200 hover:bg-base-200/80 active:scale-95 transition-all"
+                        className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 active:scale-95 transition-all"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                       </button>
@@ -422,41 +422,41 @@ function ConnectionForm({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-base-100 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+      <div className="bg-card rounded-2xl w-full max-w-md p-5 space-y-4 shadow-soft">
         <div className="flex items-center justify-between">
-          <h4 className="font-black text-text-main">
+          <h4 className="font-black text-foreground">
             {initial
               ? "Edit connection"
               : isFirebase
                 ? "Add Firebase project"
                 : "Add Supabase project"}
           </h4>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-base-200">
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-secondary">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <label className="block text-xs font-bold text-text-muted">
+        <label className="block text-xs font-bold text-muted-foreground">
           Label
           <input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder={isFirebase ? "My Firebase Project" : "My Supabase Project"}
-            className="mt-1 w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-sm font-medium"
+            className="mt-1 w-full px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium"
           />
         </label>
         {!isFirebase && (
-          <label className="block text-xs font-bold text-text-muted">
+          <label className="block text-xs font-bold text-muted-foreground">
             Project URL
             <input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://xxxx.supabase.co"
-              className="mt-1 w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-sm font-mono"
+              className="mt-1 w-full px-3 py-2 rounded-xl border border-border bg-card text-sm font-mono"
             />
           </label>
         )}
-        <label className="block text-xs font-bold text-text-muted">
+        <label className="block text-xs font-bold text-muted-foreground">
           {isFirebase ? "Firebase config (JSON)" : "Service-role key"}
           <div className="mt-1 relative">
             {isFirebase ? (
@@ -465,7 +465,7 @@ function ConnectionForm({
                 onChange={(e) => setKey(e.target.value)}
                 rows={8}
                 placeholder={`{\n  "apiKey": "AIza...",\n  "authDomain": "my-app.firebaseapp.com",\n  "projectId": "my-app",\n  "storageBucket": "my-app.appspot.com",\n  "messagingSenderId": "123",\n  "appId": "1:123:web:abc"\n}`}
-                className="w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-xs font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-mono"
               />
             ) : (
               <>
@@ -474,12 +474,12 @@ function ConnectionForm({
                   onChange={(e) => setKey(e.target.value)}
                   type={showKey ? "text" : "password"}
                   placeholder="eyJhbGciOi..."
-                  className="w-full px-3 py-2 pr-10 rounded-xl border border-base-200 bg-base-100 text-sm font-mono"
+                  className="w-full px-3 py-2 pr-10 rounded-xl border border-border bg-card text-sm font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => setShowKey((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-base-200"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-secondary"
                 >
                   {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -488,7 +488,7 @@ function ConnectionForm({
           </div>
         </label>
         {isFirebase && (
-          <p className="text-[11px] text-text-muted">
+          <p className="text-[11px] text-muted-foreground">
             Paste the Firebase web app config object from your Firebase console
             (Project settings → SDK setup → Config). Access is gated by
             Firestore security rules.
@@ -500,14 +500,14 @@ function ConnectionForm({
         <div className="flex justify-end gap-2 pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm font-bold bg-base-200 text-text-main hover:bg-base-200/80"
+            className="px-4 py-2 rounded-xl text-sm font-bold bg-secondary text-foreground hover:bg-secondary/80"
           >
             Cancel
           </button>
           <button
             onClick={submit}
             disabled={busy}
-            className="px-4 py-2 rounded-xl text-sm font-bold bg-primary-600 text-white hover:bg-primary-700 flex items-center gap-2 disabled:opacity-60"
+            className="px-4 py-2 rounded-xl text-sm font-bold bg-primary text-white hover:bg-primary-700 flex items-center gap-2 disabled:opacity-60"
           >
             {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save
@@ -599,12 +599,12 @@ function CrudSection({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <label className="block text-xs font-bold text-text-muted">
+        <label className="block text-xs font-bold text-muted-foreground">
           Connection
           <select
             value={connId}
             onChange={(e) => setConnId(e.target.value)}
-            className="mt-1 w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-sm font-medium"
+            className="mt-1 w-full px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium"
           >
             {connections.map((c) => (
               <option key={c.id} value={c.id}>
@@ -613,7 +613,7 @@ function CrudSection({
             ))}
           </select>
         </label>
-        <label className="block text-xs font-bold text-text-muted">
+        <label className="block text-xs font-bold text-muted-foreground">
           App table
           <select
             value={table}
@@ -621,40 +621,40 @@ function CrudSection({
               setTable(e.target.value);
               setCustomTable("");
             }}
-            className="mt-1 w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-sm font-medium"
+            className="mt-1 w-full px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium"
           >
             {APP_TABLES.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
           </select>
         </label>
-        <label className="block text-xs font-bold text-text-muted">
+        <label className="block text-xs font-bold text-muted-foreground">
           Custom table (optional)
           <input
             value={customTable}
             onChange={(e) => setCustomTable(e.target.value)}
             placeholder="any_table_name"
-            className="mt-1 w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-sm font-mono"
+            className="mt-1 w-full px-3 py-2 rounded-xl border border-border bg-card text-sm font-mono"
           />
         </label>
       </div>
 
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="text-sm text-text-muted">
-          <span className="font-bold text-text-main">{effectiveTable}</span>
+        <div className="text-sm text-muted-foreground">
+          <span className="font-bold text-foreground">{effectiveTable}</span>
           {" — "}
           {loading ? "loading…" : `${rows.length} row(s)`}
         </div>
         <div className="flex gap-2">
           <button
             onClick={load}
-            className="text-xs font-bold px-3 py-2 rounded-xl bg-base-200 text-text-main hover:bg-base-200/80 flex items-center gap-1"
+            className="text-xs font-bold px-3 py-2 rounded-xl bg-secondary text-foreground hover:bg-secondary/80 flex items-center gap-1"
           >
             <RefreshCw className="w-3.5 h-3.5" /> Reload
           </button>
           <button
             onClick={() => setEditing({ row: { id: crypto.randomUUID() }, isNew: true })}
-            className="text-xs font-bold px-3 py-2 rounded-xl bg-primary-600 text-white hover:bg-primary-700 flex items-center gap-1"
+            className="text-xs font-bold px-3 py-2 rounded-xl bg-primary text-white hover:bg-primary-700 flex items-center gap-1"
           >
             <Plus className="w-3.5 h-3.5" /> New row
           </button>
@@ -670,12 +670,12 @@ function CrudSection({
       {loading && rows.length === 0 ? (
         <CrudTableSkeleton rows={6} cols={Math.max(columns.length || 4, 4)} />
       ) : (
-      <div className="overflow-x-auto rounded-xl border border-base-200">
+      <div className="overflow-x-auto rounded-xl border border-border">
         <table className="min-w-full text-xs">
-          <thead className="bg-base-200/60">
+          <thead className="bg-secondary/60">
             <tr>
               {columns.map((c) => (
-                <th key={c} className="text-left p-2 font-bold text-text-muted whitespace-nowrap">
+                <th key={c} className="text-left p-2 font-bold text-muted-foreground whitespace-nowrap">
                   {c}
                 </th>
               ))}
@@ -684,16 +684,16 @@ function CrudSection({
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              <tr key={row.id || i} className="border-t border-base-200">
+              <tr key={row.id || i} className="border-t border-border">
                 {columns.map((c) => (
-                  <td key={c} className="p-2 max-w-[220px] truncate text-text-main">
+                  <td key={c} className="p-2 max-w-[220px] truncate text-foreground">
                     {formatCell(row[c])}
                   </td>
                 ))}
                 <td className="p-2 flex gap-1 justify-end">
                   <button
                     onClick={() => setEditing({ row, isNew: false })}
-                    className="p-1.5 rounded-md bg-base-200 hover:bg-base-200/80"
+                    className="p-1.5 rounded-md bg-secondary hover:bg-secondary/80"
                   >
                     <Edit3 className="w-3 h-3" />
                   </button>
@@ -708,7 +708,7 @@ function CrudSection({
             ))}
             {!rows.length && !loading && (
               <tr>
-                <td className="p-4 text-center text-text-muted" colSpan={Math.max(columns.length + 1, 1)}>
+                <td className="p-4 text-center text-muted-foreground" colSpan={Math.max(columns.length + 1, 1)}>
                   No rows.
                 </td>
               </tr>
@@ -743,15 +743,15 @@ function formatCell(v: any) {
  */
 function FirestoreProbeReport({ probes }: { probes: FirestoreCollectionProbe[] }) {
   return (
-    <div className="mt-2 rounded-lg border border-base-200 bg-base-100 overflow-hidden">
+    <div className="mt-2 rounded-lg border border-border bg-card overflow-hidden">
       <table className="min-w-full text-[11px]">
-        <thead className="bg-base-200/60">
+        <thead className="bg-secondary/60">
           <tr>
-            <th className="text-left px-2 py-1 font-bold text-text-muted">Collection</th>
-            <th className="px-2 py-1 font-bold text-text-muted">Read</th>
-            <th className="px-2 py-1 font-bold text-text-muted">Write</th>
-            <th className="px-2 py-1 font-bold text-text-muted">Delete</th>
-            <th className="text-left px-2 py-1 font-bold text-text-muted">Docs</th>
+            <th className="text-left px-2 py-1 font-bold text-muted-foreground">Collection</th>
+            <th className="px-2 py-1 font-bold text-muted-foreground">Read</th>
+            <th className="px-2 py-1 font-bold text-muted-foreground">Write</th>
+            <th className="px-2 py-1 font-bold text-muted-foreground">Delete</th>
+            <th className="text-left px-2 py-1 font-bold text-muted-foreground">Docs</th>
           </tr>
         </thead>
         <tbody>
@@ -759,12 +759,12 @@ function FirestoreProbeReport({ probes }: { probes: FirestoreCollectionProbe[] }
             const firstErr = p.readError || p.writeError || p.deleteError;
             return (
               <React.Fragment key={p.name}>
-                <tr className="border-t border-base-200">
-                  <td className="px-2 py-1 font-mono text-text-main">{p.name}</td>
+                <tr className="border-t border-border">
+                  <td className="px-2 py-1 font-mono text-foreground">{p.name}</td>
                   <td className="px-2 py-1 text-center">{p.canRead ? "✓" : "✗"}</td>
                   <td className="px-2 py-1 text-center">{p.canWrite ? "✓" : "✗"}</td>
                   <td className="px-2 py-1 text-center">{p.canDelete ? "✓" : "—"}</td>
-                  <td className="px-2 py-1 text-text-muted">
+                  <td className="px-2 py-1 text-muted-foreground">
                     {p.canRead ? (p.exists ? p.docCount : "empty") : "—"}
                   </td>
                 </tr>
@@ -801,25 +801,25 @@ function RowEditor({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-base-100 rounded-2xl w-full max-w-2xl p-5 space-y-4 shadow-xl">
+      <div className="bg-card rounded-2xl w-full max-w-2xl p-5 space-y-4 shadow-soft">
         <div className="flex items-center justify-between">
-          <h4 className="font-black text-text-main">
+          <h4 className="font-black text-foreground">
             {isNew ? "Insert new row" : "Edit row"}
           </h4>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-base-200">
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-secondary">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-xs text-text-muted">Edit raw JSON. Keep <code>id</code> for updates.</p>
+        <p className="text-xs text-muted-foreground">Edit raw JSON. Keep <code>id</code> for updates.</p>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={14}
-          className="w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-xs font-mono"
+          className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-mono"
         />
         {error && <p className="text-xs text-red-600 font-bold">{error}</p>}
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-bold bg-base-200">
+          <button onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-bold bg-secondary">
             Cancel
           </button>
           <button
@@ -836,7 +836,7 @@ function RowEditor({
               }
             }}
             disabled={busy}
-            className="px-4 py-2 rounded-xl text-sm font-bold bg-primary-600 text-white hover:bg-primary-700 flex items-center gap-2 disabled:opacity-60"
+            className="px-4 py-2 rounded-xl text-sm font-bold bg-primary text-white hover:bg-primary-700 flex items-center gap-2 disabled:opacity-60"
           >
             {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save
@@ -1020,24 +1020,24 @@ function TransferSection({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <label className="block text-xs font-bold text-text-muted">
+        <label className="block text-xs font-bold text-muted-foreground">
           Source
           <select
             value={sourceId}
             onChange={(e) => setSourceId(e.target.value)}
-            className="mt-1 w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-sm font-medium"
+            className="mt-1 w-full px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium"
           >
             {connections.map((c) => (
               <option key={c.id} value={c.id}>{c.label}</option>
             ))}
           </select>
         </label>
-        <label className="block text-xs font-bold text-text-muted">
+        <label className="block text-xs font-bold text-muted-foreground">
           Destination
           <select
             value={destId}
             onChange={(e) => setDestId(e.target.value)}
-            className="mt-1 w-full px-3 py-2 rounded-xl border border-base-200 bg-base-100 text-sm font-medium"
+            className="mt-1 w-full px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium"
           >
             {connections.map((c) => (
               <option key={c.id} value={c.id}>{c.label}</option>
@@ -1047,7 +1047,7 @@ function TransferSection({
       </div>
 
       <div>
-        <p className="text-xs font-bold text-text-muted mb-1">Tables</p>
+        <p className="text-xs font-bold text-muted-foreground mb-1">Tables</p>
         <div className="flex flex-wrap gap-2">
           {APP_TABLES.map((t) => {
             const on = tables.includes(t);
@@ -1057,8 +1057,8 @@ function TransferSection({
                 onClick={() => toggleTable(t)}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
                   on
-                    ? "bg-primary-600 text-white border-primary-600"
-                    : "bg-base-100 text-text-muted border-base-200 hover:bg-base-200"
+                    ? "bg-primary text-white border-primary-600"
+                    : "bg-card text-muted-foreground border-border hover:bg-secondary"
                 }`}
               >
                 {t}
@@ -1069,7 +1069,7 @@ function TransferSection({
       </div>
 
       <div>
-        <p className="text-xs font-bold text-text-muted mb-1">Mode</p>
+        <p className="text-xs font-bold text-muted-foreground mb-1">Mode</p>
         <div className="flex gap-2">
           {(["upsert", "replace", "skip"] as const).map((m) => (
             <button
@@ -1077,8 +1077,8 @@ function TransferSection({
               onClick={() => setMode(m)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 mode === m
-                  ? "bg-primary-600 text-white"
-                  : "bg-base-100 text-text-muted border border-base-200 hover:bg-base-200"
+                  ? "bg-primary text-white"
+                  : "bg-card text-muted-foreground border border-border hover:bg-secondary"
               }`}
             >
               {m === "upsert"
@@ -1092,7 +1092,7 @@ function TransferSection({
           ))}
         </div>
         {mode === "skip" && dest?.provider !== "firebase" && (
-          <p className="text-[11px] text-text-muted mt-1">
+          <p className="text-[11px] text-muted-foreground mt-1">
             "Skip" maps to upsert on Postgres destinations (PostgREST has no
             native do-nothing-on-conflict). Use a Firebase destination for true
             id-collision skipping.
@@ -1104,7 +1104,7 @@ function TransferSection({
         <button
           onClick={run}
           disabled={busy || bootstrapBusy}
-          className="bg-primary-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-primary-700 disabled:opacity-60 active:scale-95 transition-all"
+          className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-primary-700 disabled:opacity-60 active:scale-95 transition-all"
         >
           {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRightLeft className="w-4 h-4" />}
           Push data
@@ -1119,7 +1119,7 @@ function TransferSection({
         </button>
         <button
           onClick={() => setShowHelp((v) => !v)}
-          className="px-4 py-2.5 rounded-xl text-sm font-bold bg-base-200 text-text-main hover:bg-base-200/80"
+          className="px-4 py-2.5 rounded-xl text-sm font-bold bg-secondary text-foreground hover:bg-secondary/80"
         >
           {showHelp ? "Hide help" : "Help"}
         </button>
@@ -1134,15 +1134,15 @@ function TransferSection({
       </div>
 
       {showHelp && (
-        <div className="rounded-xl border border-base-200 bg-base-100 p-4 text-xs space-y-2">
-          <p className="font-bold text-text-main">One-time setup for a new destination project</p>
-          <ol className="list-decimal pl-5 space-y-1 text-text-muted">
+        <div className="rounded-xl border border-border bg-card p-4 text-xs space-y-2">
+          <p className="font-bold text-foreground">One-time setup for a new destination project</p>
+          <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
             <li>Open the destination Supabase project → <b>SQL editor</b>.</li>
             <li>Paste and run the snippet below (creates a helper that lets this app run schema SQL).</li>
             <li>Come back here and click <b>Bootstrap schema on destination</b>.</li>
             <li>Then click <b>Push data</b>.</li>
           </ol>
-          <pre className="bg-base-200/60 rounded-lg p-2 overflow-auto text-[11px] font-mono whitespace-pre-wrap">
+          <pre className="bg-secondary/60 rounded-lg p-2 overflow-auto text-[11px] font-mono whitespace-pre-wrap">
 {EXEC_SQL_BOOTSTRAP}
           </pre>
         </div>
@@ -1150,7 +1150,7 @@ function TransferSection({
 
       {busy && log.length === 0 && <TransferLogSkeleton lines={8} />}
       {log.length > 0 && (
-        <pre className="bg-base-100 border border-base-200 rounded-xl p-3 text-[11px] font-mono text-text-main max-h-72 overflow-auto whitespace-pre-wrap">
+        <pre className="bg-card border border-border rounded-xl p-3 text-[11px] font-mono text-foreground max-h-72 overflow-auto whitespace-pre-wrap">
           {log.join("\n")}
         </pre>
       )}

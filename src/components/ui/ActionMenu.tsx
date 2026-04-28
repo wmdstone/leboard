@@ -1,59 +1,32 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 export function ActionMenu({ onEdit, onDelete, placement = 'bottom-end' }: { onEdit: () => void, onDelete: () => void, placement?: 'bottom-end' | 'top-center' }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
-
-  const placementClass = placement === 'top-center' 
-    ? 'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 bg-base-100 rounded-2xl border border-base-200 shadow-xl overflow-hidden z-50' 
-    : 'absolute right-0 top-full mt-1 w-32 bg-base-100 rounded-2xl border border-base-200 shadow-xl overflow-hidden z-50';
-
-  const animationProps = placement === 'top-center'
-    ? { initial: { opacity: 0, y: 5, scale: 0.95 }, animate: { opacity: 1, y: 0, scale: 1 }, exit: { opacity: 0, y: 5, scale: 0.95 } }
-    : { initial: { opacity: 0, y: -5, scale: 0.95 }, animate: { opacity: 1, y: 0, scale: 1 }, exit: { opacity: 0, y: -5, scale: 0.95 } };
-
   return (
-    <div className="relative" ref={ref}>
-      <button 
-        onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }} 
-        className="p-1.5 hover:bg-base-200 rounded-lg text-text-light hover:text-text-main transition-colors"
-      >
-        <MoreHorizontal className="w-5 h-5" />
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-           <motion.div 
-             {...animationProps}
-             transition={{ duration: 0.1 }}
-             className={placementClass}
-           >
-             <button 
-               onClick={(e) => { e.stopPropagation(); setIsOpen(false); onEdit(); }} 
-               className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-main hover:bg-base-50 transition-colors"
-             >
-               <Edit className="w-4 h-4 text-primary-500" /> Edit
-             </button>
-             <button 
-               onClick={(e) => { e.stopPropagation(); setIsOpen(false); onDelete(); }} 
-               className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors border-t border-base-100"
-             >
-               <Trash2 className="w-4 h-4" /> Delete
-             </button>
-           </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+          <MoreHorizontal className="h-5 w-5" />
+          <span className="sr-only">Open menu</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align={placement === 'top-center' ? 'center' : 'end'} side={placement === 'top-center' ? 'top' : 'bottom'} className="w-36 rounded-2xl shadow-soft animate-in fade-in zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 bg-popover text-popover-foreground">
+        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(); }} className="gap-2 cursor-pointer font-bold py-2.5 hover:bg-secondary">
+          <Edit className="h-4 w-4 text-primary" />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(); }} className="gap-2 cursor-pointer font-bold text-destructive hover:bg-destructive/10 hover:text-destructive py-2.5">
+          <Trash2 className="h-4 w-4" />
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

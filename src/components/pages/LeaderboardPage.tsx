@@ -4,14 +4,15 @@ import { Search, Trophy, Medal, Crown, Flame, Loader2 } from 'lucide-react';
 import { StudentSearchAdvanced } from '../StudentSearchAdvanced';
 import { trackEvent } from '../../lib/analytics';
 import { ImageFallback, dicebearAvatar } from '../ImageFallback';
-import { ActionMenu } from '../ui/ActionMenu';
-import { ConfirmModal } from '../ui/ConfirmModal';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { RankMovement } from '../ui/RankMovement';
 import type { Student, MasterGoal, AssignedGoal, Category } from '../../lib/types';
 import { TIME_RANGE, TIME_RANGE_OPTIONS, type TimeRange } from '../../lib/timeRanges';
-import { TimeRangeFilter, createDefaultTimeRangeValue, type TimeRangeValue } from '../TimeRangeFilter';
 import { StudentSearchFilter, applyStudentSearchFilter, emptyStudentSearchFilter, type StudentSearchFilterValue } from '../StudentSearchFilter';
 import { StudentSortDropdown, sortStudents, type SortKey } from '../StudentSortDropdown';
+import { cn } from '@/lib/utils';
 
 export // --- LEADERBOARD PAGE ---
 function LeaderboardPage({ students, masterGoals, calculateTotalPoints, navigateTo, isLoading, appSettings }: {
@@ -138,9 +139,33 @@ function LeaderboardPage({ students, masterGoals, calculateTotalPoints, navigate
     if (!student) return <div className="w-1/3 opacity-0" key={`empty-${position}`} />;
     
     const config = {
-      middle: { rank: 1, height: 'h-40 md:h-48', avatarSize: 'w-24 h-24 md:w-32 md:h-32', border: 'border-yellow-400', crown: <Crown className="w-8 h-8 md:w-10 md:h-10 text-yellow-500 absolute -top-6 left-1/2 -translate-x-1/2 drop-shadow-md" />, delay: 0 },
-      left: { rank: 2, height: 'h-28 md:h-32', avatarSize: 'w-16 h-16 md:w-20 md:h-20', border: 'border-slate-300', crown: <Medal className="w-6 h-6 md:w-8 md:h-8 text-slate-400 absolute -top-4 left-1/2 -translate-x-1/2 drop-shadow-md" />, delay: 0.1 },
-      right: { rank: 3, height: 'h-24 md:h-28', avatarSize: 'w-16 h-16 md:w-20 md:h-20', border: 'border-orange-400', crown: <Medal className="w-6 h-6 md:w-8 md:h-8 text-orange-500 absolute -top-4 left-1/2 -translate-x-1/2 drop-shadow-md" />, delay: 0.2 },
+      middle: { 
+        rank: 1, 
+        height: 'h-[160px] md:h-[200px]', 
+        avatarSize: 'h-24 w-24 md:h-32 md:w-32', 
+        border: 'border-yellow-400', 
+        crown: <Crown className="w-8 h-8 md:w-10 md:h-10 text-yellow-500 absolute -top-6 left-1/2 -translate-x-1/2 drop-shadow-md z-20" />, 
+        delay: 0,
+        podiumColor: "from-primary/30 to-primary/10 border-primary/40",
+      },
+      left: { 
+        rank: 2, 
+        height: 'h-[120px] md:h-[140px]', 
+        avatarSize: 'h-16 w-16 md:h-20 md:w-20', 
+        border: 'border-slate-300', 
+        crown: <Medal className="w-6 h-6 md:w-8 md:h-8 text-slate-400 absolute -top-4 left-1/2 -translate-x-1/2 drop-shadow-md z-20" />, 
+        delay: 0.1,
+        podiumColor: "from-secondary to-secondary/30 border-border",
+      },
+      right: { 
+        rank: 3, 
+        height: 'h-[100px] md:h-[120px]', 
+        avatarSize: 'h-16 w-16 md:h-20 md:w-20', 
+        border: 'border-orange-400', 
+        crown: <Medal className="w-6 h-6 md:w-8 md:h-8 text-orange-500 absolute -top-4 left-1/2 -translate-x-1/2 drop-shadow-md z-20" />, 
+        delay: 0.2,
+        podiumColor: "from-secondary to-secondary/30 border-border",
+      },
     }[position];
 
     return (
@@ -158,52 +183,64 @@ function LeaderboardPage({ students, masterGoals, calculateTotalPoints, navigate
         }}
         className="flex flex-col items-center justify-end w-1/3 px-1 md:px-2 pt-6"
       >
-        <div className="relative mb-2 flex flex-col items-center">
+        <div className={cn("relative mb-2 flex flex-col items-center", config.rank === 1 && "z-10")}>
           {config.crown}
-          <ImageFallback 
-            src={student.photo} 
-            alt={student.name} 
-            variant="avatar" 
-            className={`${config.avatarSize} rounded-full object-cover border-[3px] md:border-4 ${config.border} bg-base-100 relative z-10 cursor-pointer`} 
-            wrapperClassName={`${config.avatarSize} relative z-10 rounded-full shadow-lg`}
-            onClick={() => {
-              trackEvent('profile_open', { refId: student.id, metadata: { source: 'podium' } });
-              navigateTo('/student', { id: student.id });
-            }}
-          />
-          <div className="absolute -bottom-2 md:-bottom-3 bg-base-900 text-white text-[10px] md:text-sm font-black px-2 md:px-3 py-0.5 rounded-full border-2 border-base-100 z-20 shadow-sm">
-            #{config.rank}
+          <div className="relative">
+            <Avatar 
+                className={cn(
+                  config.avatarSize,
+                  "border-4 cursor-pointer relative z-10",
+                  config.border,
+                  config.rank === 1 && "shadow-primary-glow"
+                )}
+                onClick={() => {
+                  trackEvent('profile_open', { refId: student.id, metadata: { source: 'podium' } });
+                  navigateTo('/student', { id: student.id });
+                }}
+            >
+              <AvatarImage src={student.photo} alt={student.name} />
+              <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="absolute -bottom-2 md:-bottom-3 bg-foreground text-background text-[10px] md:text-sm font-black px-2 md:px-3 py-0.5 rounded-full border-2 border-background z-20 shadow-soft left-1/2 -translate-x-1/2">
+              #{config.rank}
+            </div>
           </div>
         </div>
-        <div className="text-center w-full mt-2 md:mt-3 px-1">
-          <h4 className="font-bold text-base-50 text-xs md:text-sm line-clamp-2 md:line-clamp-3 break-words leading-tight" title={student.name}>{student.name}</h4>
-          <p className="text-[10px] md:text-xs font-black text-primary-200 mt-0.5">{student.totalPoints} pts</p>
+        <div className="text-center w-full mt-2 md:mt-3 px-1 relative z-20">
+          <h4 className="font-bold text-foreground text-xs md:text-sm line-clamp-2 md:line-clamp-3 break-words leading-tight" title={student.name}>{student.name}</h4>
+          <p className="text-[10px] md:text-xs font-black text-primary mt-0.5">{student.totalPoints} pts</p>
         </div>
-        <div className={`w-full ${config.height} bg-gradient-to-t from-primary-400/20 to-primary-100/10 mt-3 rounded-t-xl md:rounded-t-2xl border-t-[3px] ${config.border} shadow-inner backdrop-blur-sm`} />
+        
+        {/* Podium Base styling */}
+        <div className={cn(
+          "w-full bg-gradient-to-t mt-3 rounded-t-xl md:rounded-t-2xl border-t-[3px] shadow-inner backdrop-blur-sm",
+          config.height,
+          config.podiumColor
+        )} />
       </motion.div>
     );
   };
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-24 md:space-y-8">
       {/* HEADER & PODIUM */}
-      <div className="bg-gradient-to-br from-primary-600 to-primary-800 pt-8 px-4 rounded-b-[2.5rem] md:rounded-[2.5rem] text-base-50 shadow-2xl relative overflow-hidden -mx-4 -mt-6 sm:mx-0 sm:mt-0">
+      <div className="bg-card pt-8 px-4 rounded-b-xl md:rounded-xl text-foreground shadow-soft border border-border relative overflow-hidden -mx-4 -mt-6 sm:mx-0 sm:mt-0">
         <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 rotate-12 pointer-events-none">
-          {appSettings?.logoUrl ? <ImageFallback src={appSettings.logoUrl} alt="" variant="logo" className="w-64 h-64 opacity-50 grayscale" wrapperClassName="w-64 h-64" /> : <Trophy className="w-64 h-64" />}
+          {appSettings?.logoUrl ? <ImageFallback src={appSettings.logoUrl} alt="" variant="logo" className="w-64 h-64 grayscale" wrapperClassName="w-64 h-64" /> : <Trophy className="w-64 h-64" />}
         </div>
         
         <div className="relative z-10 space-y-4 max-w-2xl mx-auto mb-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-base-100/10 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
-            <Flame className="w-3 h-3 text-accent-500" /> {appSettings?.badgeTitle || 'Season 2 Active'}
-          </div>
+          <Badge variant="secondary" className="px-3 py-1 text-xs font-bold uppercase tracking-widest gap-2 bg-secondary/50 backdrop-blur-sm border-transparent text-primary hover:bg-secondary/60">
+            <Flame className="w-3 h-3 text-destructive" /> {appSettings?.badgeTitle || 'Season 2 Active'}
+          </Badge>
           <h1 className="text-3xl md:text-5xl font-black tracking-tight">{appSettings?.heroTitle || 'Student Ranking'}</h1>
-          <p className="text-base-50 drop-shadow-sm font-medium max-w-lg mx-auto text-sm md:text-base opacity-95 leading-relaxed">
+          <p className="text-muted-foreground drop-shadow-soft font-medium max-w-lg mx-auto text-sm md:text-base opacity-95 leading-relaxed">
             {appSettings?.heroSubtitle || 'Witness the rise of champions. Progress is tracked daily.'}
           </p>
           
           {/* HORIZONTAL TIME FILTERS */}
           <div className="flex justify-center mt-6">
-            <div className="bg-base-900/30 backdrop-blur-md p-1.5 rounded-full flex items-center gap-1 overflow-x-auto no-scrollbar scrollbar-hide snap-x">
+            <div className="bg-secondary/30 backdrop-blur-md p-1.5 rounded-full flex items-center gap-1 overflow-x-auto no-scrollbar scrollbar-hide snap-x">
                {TIME_RANGE_OPTIONS.map((opt) => (
                  <button 
                   key={opt.value} 
@@ -212,7 +249,7 @@ function LeaderboardPage({ students, masterGoals, calculateTotalPoints, navigate
                     trackEvent('leaderboard_filter', { metadata: { range: opt.value } });
                   }}
                   className={`px-5 py-2 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider transition-all snap-center whitespace-nowrap active:scale-95 ${
-                    timeFilter === opt.value ? 'bg-base-50 text-primary-700 shadow-md' : 'text-base-50/90 hover:text-base-50 hover:bg-base-50/20'
+                    timeFilter === opt.value ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                   }`}
                  >
                    {opt.shortLabel}
@@ -231,82 +268,106 @@ function LeaderboardPage({ students, masterGoals, calculateTotalPoints, navigate
       </div>
 
       {/* REST OF STUDENTS LIST */}
-      <div className="bg-base-100 rounded-3xl md:rounded-[2.5rem] shadow-sm border border-base-200 overflow-hidden mx-0">
-        <div className="px-4 md:px-8 pt-6 pb-2">
-          <StudentSearchAdvanced
-            value={searchFilter}
-            onChange={setSearchFilter}
-            sortKey={sortKey}
-            onSortChange={setSortKey}
-            availableTags={availableTags}
-            studentTagSource={studentTagSource}
-            placeholder="Search rank 4 and below..."
-          />
-        </div>
-        {isLoading ? (
-          <div className="p-20 flex flex-col items-center gap-4">
-            <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-            <p className="text-text-light text-sm font-medium">Fetching leaderboard data...</p>
-          </div>
-        ) : restOfStudents.length === 0 ? (
-          <div className="p-12 text-center text-text-light">
-            <p className="font-bold">
-              {hasActiveFilter ? 'No students match your search or tag filter.' : 'No other students found.'}
-            </p>
-          </div>
-        ) : (
-          <ul className="divide-y divide-slate-50">
-            {restOfStudents.map((student, index) => {
-              const rank = index + 4; // Because top 3 are extracted
-              
-              return (
-                <li 
-                  key={student.id || `leader-${index}`} 
-                  onClick={() => {
-                    trackEvent('profile_open', { refId: student.id, metadata: { source: 'leaderboard' } });
-                    navigateTo('/student', { id: student.id });
-                  }}
-                  className="flex items-center gap-3 md:gap-4 py-5 px-4 md:px-8 hover:bg-primary-50/30 transition-all cursor-pointer group active:scale-[0.99] bg-base-100"
-                >
-                  <div className="flex flex-col items-center gap-1 w-8 md:w-10">
-                    <div className="font-black text-lg md:text-xl text-text-light group-hover:text-primary-600 transition-colors">
-                      {rank}
-                    </div>
-                  </div>
+      <div className="mx-0 max-w-5xl mx-auto">
+        <Card className="rounded-xl shadow-none bg-transparent border-none">
+          <CardHeader className="px-0 pt-0 pb-4">
+            <StudentSearchAdvanced
+              value={searchFilter}
+              onChange={setSearchFilter}
+              sortKey={sortKey}
+              onSortChange={setSortKey}
+              availableTags={availableTags}
+              studentTagSource={studentTagSource}
+              placeholder="Search rank 4 and below..."
+            />
+          </CardHeader>
+          <CardContent className="px-0">
+            {isLoading ? (
+              <div className="p-20 flex flex-col items-center gap-4 bg-card rounded-xl border border-border shadow-soft">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <p className="text-muted-foreground text-sm font-medium">Fetching leaderboard data...</p>
+              </div>
+            ) : restOfStudents.length === 0 ? (
+              <div className="p-12 text-center text-muted-foreground bg-card rounded-xl border border-border shadow-soft">
+                <p className="font-bold">
+                  {hasActiveFilter ? 'No students match your search or tag filter.' : 'No other students found.'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-3 md:gap-4 md:grid-cols-1">
+                {restOfStudents.map((student, index) => {
+                  const rank = index + 4; // Because top 3 are extracted
                   
-                  <div className="relative">
-                    <ImageFallback src={student.photo} alt={student.name} variant="avatar" className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-base-200 object-cover" wrapperClassName="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full shadow-sm" />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0 pr-2">
-                    <h3 
-                      className="font-bold text-text-main group-hover:text-primary-600 transition-colors text-[clamp(0.95rem,4vw,1.1rem)] line-clamp-2 md:line-clamp-3 leading-tight break-words"
-                      title={student.name}
+                  return (
+                    <Card
+                      key={student.id || `leader-${index}`} 
+                      onClick={() => {
+                        trackEvent('profile_open', { refId: student.id, metadata: { source: 'leaderboard' } });
+                        navigateTo('/student', { id: student.id });
+                      }}
+                      className="border-border shadow-none hover:shadow-soft transition-all cursor-pointer group active:scale-[0.99] rounded-xl overflow-hidden"
                     >
-                      {student.name}
-                    </h3>
-                    <p 
-                      className="text-[clamp(0.7rem,3vw,0.75rem)] text-text-muted line-clamp-2 md:line-clamp-3 break-words mt-0.5 max-w-full"
-                      title={student.bio}
-                    >
-                      {student.bio}
-                    </p>
-                  </div>
+                      <CardContent className="p-4 md:p-6 flex items-center gap-3 md:gap-5">
+                        <div className="flex flex-col items-center gap-1 w-8 md:w-12 shrink-0">
+                          <div className="font-black text-xl md:text-2xl text-muted-foreground group-hover:text-primary transition-colors">
+                            {rank}
+                          </div>
+                        </div>
+                        
+                        <Avatar className="h-12 w-12 md:h-14 md:w-14 shrink-0 border border-border">
+                          <AvatarImage src={student.photo} alt={student.name} />
+                          <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1 min-w-0 pr-2">
+                          <h3 
+                            className="font-bold text-foreground group-hover:text-primary transition-colors text-base md:text-lg line-clamp-1 break-words"
+                            title={student.name}
+                          >
+                            {student.name}
+                          </h3>
+                          {student.bio && (
+                            <p 
+                              className="text-xs md:text-sm text-muted-foreground line-clamp-1 break-words mt-0.5"
+                              title={student.bio}
+                            >
+                              {student.bio}
+                            </p>
+                          )}
+                          {(student.tags || []).length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {(student.tags || []).slice(0, 3).map((tag, i) => (
+                                <Badge key={i} variant="secondary" className="px-1.5 py-0 text-[10px] font-semibold bg-secondary/50 text-muted-foreground">
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {(student.tags || []).length > 3 && (
+                                <span className="text-[10px] font-bold text-muted-foreground ml-1">
+                                  +{(student.tags || []).length - 3}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
 
-                  <div className="flex items-center gap-2 md:gap-3 text-right">
-                    <div className="flex flex-col items-end justify-center">
-                      <div className="text-xl md:text-2xl font-black text-text-main group-hover:text-primary-700 transition-colors">{student.totalPoints}</div>
-                      <div className="text-[9px] md:text-[10px] font-bold text-text-light uppercase tracking-widest leading-none">Points</div>
-                    </div>
-                    <RankMovement currentRank={rank} previousRank={student.previousRank} />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                        <div className="flex items-center gap-3 md:gap-6 text-right shrink-0">
+                          <div className="flex flex-col items-end justify-center">
+                            <div className="text-xl md:text-3xl font-black text-foreground group-hover:text-primary transition-colors">{student.totalPoints}</div>
+                            <div className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">Points</div>
+                          </div>
+                          <div className="hidden sm:block">
+                            <RankMovement currentRank={rank} previousRank={student.previousRank} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
-
 
     </div>
   );

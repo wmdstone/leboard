@@ -1,24 +1,25 @@
 import React from 'react';
 import { ArrowUp, ArrowDown } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export function RankMovement({ currentRank, previousRank }: { currentRank: number, previousRank?: number }) {
   if (previousRank === undefined || previousRank === null || previousRank === currentRank) {
-    return <div className="text-base-300 font-bold text-xs flex items-center justify-center w-6">—</div>;
+    return <div className="text-muted-foreground font-bold text-xs flex items-center justify-center w-6">—</div>;
   }
   
   if (currentRank < previousRank) {
     return (
-      <div className="flex flex-col items-center justify-center px-1.5 py-1 bg-accent-50/50 rounded-lg shrink-0">
-        <ArrowUp className="w-3.5 h-3.5 text-accent-500" strokeWidth={3} />
-        <span className="text-[10px] font-bold text-accent-600">{previousRank - currentRank}</span>
-      </div>
+      <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary border-primary/20 rounded-full shrink-0 shadow-none">
+        <ArrowUp className="w-3 h-3" strokeWidth={3} />
+        <span className="text-[10px] font-bold">{previousRank - currentRank}</span>
+      </Badge>
     );
   } else {
     return (
-      <div className="flex flex-col items-center justify-center px-1.5 py-1 bg-red-50 rounded-lg shrink-0">
-        <ArrowDown className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
-        <span className="text-[10px] font-bold text-red-600">{currentRank - previousRank}</span>
-      </div>
+      <Badge variant="outline" className="flex items-center gap-1 px-2 py-0.5 bg-destructive/10 text-destructive border-destructive/20 rounded-full shrink-0 shadow-none">
+        <ArrowDown className="w-3 h-3" strokeWidth={3} />
+        <span className="text-[10px] font-bold">{currentRank - previousRank}</span>
+      </Badge>
     );
   }
 }

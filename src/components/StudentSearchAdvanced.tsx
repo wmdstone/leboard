@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import {
   StudentSearchFilter,
   type StudentSearchFilterValue,
@@ -16,18 +17,9 @@ interface Props {
   placeholder?: string;
   variant?: 'light' | 'dark';
   className?: string;
-  /** Whether the advanced section starts open. Defaults to false. */
   defaultOpen?: boolean;
 }
 
-/**
- * Composite control:
- *  - Always-visible BASIC search input.
- *  - Collapsible ADVANCED section that reveals Tag filter + Sort dropdown.
- * The "Advanced" toggle shows a badge with the number of active advanced
- * options (selected tags + non-default sort) so users see at a glance whether
- * any hidden filter is currently affecting results.
- */
 export function StudentSearchAdvanced({
   value,
   onChange,
@@ -56,7 +48,7 @@ export function StudentSearchAdvanced({
       </div>
 
       {/* Tags and Sort Buttons - Always below and left-aligned */}
-      <div className="flex items-center gap-2 px-1">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 px-1">
         <StudentSearchFilter
           mode="tags"
           value={value}
@@ -74,31 +66,32 @@ export function StudentSearchAdvanced({
 
       {/* Selected tags display */}
       {value.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 px-1">
+        <div className="flex flex-wrap gap-1.5 px-1 mt-1">
           {value.tags.map((tag) => (
-            <span
+            <Badge
               key={tag}
-              className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full ${
-                isDark
-                  ? 'bg-base-50/15 text-base-50 border border-base-50/20 shadow-sm'
-                  : 'bg-primary-50 text-primary-700 border border-primary-100 shadow-sm'
+              variant={isDark ? "secondary" : "default"}
+              className={`flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full ${
+                isDark 
+                  ? 'bg-secondary/40 text-foreground border-foreground/10 shadow-soft'
+                  : 'bg-primary/10 text-primary hover:bg-primary/20 shadow-soft'
               }`}
             >
               {tag}
               <button
                 type="button"
                 onClick={() => onChange({ ...value, tags: value.tags.filter(t => t !== tag) })}
-                className="hover:opacity-70"
+                className="hover:text-destructive transition-colors rounded-full"
                 aria-label={`Remove ${tag}`}
               >
                 <X className="h-3 w-3" />
               </button>
-            </span>
+            </Badge>
           ))}
           <button
             type="button"
             onClick={() => onChange({ ...value, tags: [] })}
-            className="text-[10px] font-bold text-text-light hover:text-primary-600 px-1 ml-1"
+            className="text-[10px] font-bold text-muted-foreground hover:text-primary transition-colors px-1 ml-1"
           >
             Clear all
           </button>
