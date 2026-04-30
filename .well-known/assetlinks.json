@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.leboard.twa", 
+      "sha256_cert_fingerprints": [
+        "04:1F:50:63:92:2E:81:C9:F2:A0:FD:66:1A:98:2F:31:29:DB:3E:38:6C:38:00:1E:08:2F:F7:07:2C:46:B6:C7"
+      ]
+    }
+  }
+]
