@@ -1,7 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 @import "@fontsource-variable/geist";
+@import "tippy.js/dist/tippy.css";
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/700.css";
+@import "@fontsource/playfair-display/900.css";
+@import "@fontsource/playfair-display/400-italic.css";
+@import "@fontsource/source-serif-4/400.css";
+@import "@fontsource/source-serif-4/600.css";
+@import "@fontsource/source-serif-4/400-italic.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -86,7 +95,9 @@ html {
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
+  --font-heading: 'Playfair Display', 'Source Serif 4', Georgia, serif;
+  --font-serif: 'Source Serif 4', 'Playfair Display', Georgia, serif;
+  --font-display: 'Playfair Display', Georgia, serif;
   --font-sans: 'Geist Variable', sans-serif;
   --color-sidebar-ring: hsl(var(--sidebar-ring));
   --color-sidebar-border: hsl(var(--sidebar-border));
@@ -224,4 +235,242 @@ html {
   html {
     @apply font-sans;
   }
+}
+
+/* ============= Editorial / Newspaper utilities ============= */
+.font-display { font-family: 'Playfair Display', Georgia, serif; font-feature-settings: "lnum", "kern"; }
+.font-serif-body { font-family: 'Source Serif 4', Georgia, serif; }
+
+.editorial-rule {
+  background-image: repeating-linear-gradient(to right, hsl(var(--foreground)) 0 6px, transparent 6px 10px);
+  height: 2px;
+}
+
+.dropcap > p:first-of-type::first-letter {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 900;
+  font-size: 4.75rem;
+  line-height: 0.85;
+  float: left;
+  padding: 0.35rem 0.75rem 0 0;
+  color: hsl(var(--primary));
+}
+
+@media (min-width: 1024px) {
+  .editorial-columns { column-count: 2; column-gap: 2.5rem; }
+}
+
+/* Dark mode prose overrides for editorial blog */
+.dark .prose {
+  --tw-prose-body: hsl(var(--foreground) / 0.85);
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--foreground) / 0.7);
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--muted-foreground));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--primary));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-pre-code: hsl(var(--foreground));
+  --tw-prose-pre-bg: hsl(var(--muted));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+}
+
+.dark .editorial-rule {
+  background-image: repeating-linear-gradient(to right, hsl(var(--foreground) / 0.4) 0 6px, transparent 6px 10px);
+}
+
+/* ============= ProseMirror Editor Typography ============= */
+.ProseMirror {
+  outline: none !important;
+}
+
+.ProseMirror h1 {
+  font-size: 2.25em;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-top: 1.25em;
+  margin-bottom: 0.6em;
+  font-family: var(--font-heading);
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  font-family: var(--font-heading);
+}
+
+.ProseMirror h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+  font-family: var(--font-heading);
+}
+
+.ProseMirror h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 0.8em;
+  margin-bottom: 0.3em;
+}
+
+.ProseMirror p {
+  margin-top: 0;
+  margin-bottom: 0.75em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.ProseMirror ul ul {
+  list-style-type: circle;
+}
+
+.ProseMirror ul ul ul {
+  list-style-type: square;
+}
+
+.ProseMirror li {
+  margin-bottom: 0.25em;
+}
+
+.ProseMirror li p {
+  margin-bottom: 0.25em;
+}
+
+.ProseMirror blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1em;
+  margin-left: 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+.ProseMirror pre {
+  background: hsl(var(--muted));
+  border-radius: 0.5rem;
+  padding: 1em;
+  overflow-x: auto;
+  font-size: 0.875em;
+  margin-bottom: 0.75em;
+}
+
+.ProseMirror code {
+  background: hsl(var(--muted));
+  border-radius: 0.25rem;
+  padding: 0.15em 0.35em;
+  font-size: 0.875em;
+}
+
+.ProseMirror pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 2px solid hsl(var(--border));
+  margin: 1.5em 0;
+}
+
+/* Notion-style drag handle */
+.node-drag-handle {
+  opacity: 0;
+  transition: opacity 150ms ease;
+  cursor: grab;
+  user-select: none;
+}
+
+.node-drag-handle:active {
+  cursor: grabbing;
+}
+
+.group:hover > .node-drag-handle,
+.group\/block:hover > .node-drag-handle {
+  opacity: 1;
+}
+/* ==== Tippy.js transparent theme (slash menu host) ==== */
+.tippy-box[data-theme~='transparent'] {
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+}
+.tippy-box[data-theme~='transparent'] > .tippy-content {
+  padding: 0;
+}
+.tippy-box[data-theme~='transparent'] > .tippy-arrow {
+  display: none;
+}
+
+/* ==== Notion-style tables inside the editor ==== */
+.ProseMirror table.prose-table,
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+.ProseMirror table th,
+.ProseMirror table td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  position: relative;
+  min-width: 80px;
+}
+.ProseMirror table th {
+  background: hsl(var(--muted) / 0.6);
+  font-weight: 600;
+  text-align: left;
+}
+.ProseMirror table .selectedCell:after {
+  background: hsl(var(--primary) / 0.15);
+  content: '';
+  inset: 0;
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+.ProseMirror .column-resize-handle {
+  background: hsl(var(--primary));
+  bottom: -2px;
+  position: absolute;
+  right: -2px;
+  pointer-events: none;
+  top: 0;
+  width: 3px;
+}
+.ProseMirror.resize-cursor { cursor: col-resize; }
+
+/* Empty paragraph placeholder for slash hint */
+.ProseMirror p.is-editor-empty:first-child::before,
+.ProseMirror p.is-empty::before {
+  color: hsl(var(--muted-foreground));
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

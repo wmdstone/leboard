@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch, fetchAppData } from '../lib/api';
-import { supabase } from '../integrations/supabase/client';
 
 export function useAuthQuery() {
   return useQuery({
@@ -11,6 +10,7 @@ export function useAuthQuery() {
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 }
 
@@ -19,6 +19,7 @@ export function useAppDataQuery() {
     queryKey: ['app-data'],
     queryFn: fetchAppData,
     staleTime: 120000,
+    retry: false,
   });
 }
 
@@ -62,9 +63,9 @@ export function useAppEventsQuery(filter: any) {
       const { start, end } = filter.range;
       const startIso = start?.toISOString();
       const endIso = end?.toISOString();
-      const res = await supabase.from('app_events').select('*');
-      if (res.error) throw res.error;
-      let evts = res.data || [];
+      const res = await apiFetch('/api/events');
+      if (!res.ok) throw new Error('Failed to fetch events');
+      let evts = await res.json() || [];
       if (startIso) evts = evts.filter((e: any) => e.created_at >= startIso);
       if (endIso) evts = evts.filter((e: any) => e.created_at <= endIso);
       return evts;

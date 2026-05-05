@@ -29,13 +29,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PopoverSelect } from "@/components/ui/PopoverSelect";
 import { ChevronLeft, ChevronRight, ChevronDown, Trash2 } from "lucide-react";
 
 export interface DataTableProps<TData, TValue> {
@@ -180,21 +174,13 @@ export function DataTable<TData, TValue>({
             <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">
               Rows per page
             </p>
-            <Select
+            <PopoverSelect
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
-            >
-              <SelectTrigger className="h-8 w-[70px] bg-card border-border shadow-sm">
-                <SelectValue placeholder={table.getState().pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[10, 20, 50, 100].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={[10, 20, 50, 100].map(pageSize => ({ value: `${pageSize}`, label: `${pageSize}` }))}
+              placeholder={`${table.getState().pagination.pageSize}`}
+              className="h-8 w-[70px] bg-card border-border shadow-sm"
+            />
           </div>
           
           <div className="flex items-center space-x-2">
@@ -203,7 +189,7 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="rounded-md border-border bg-card shadow-sm h-9 w-9 p-0"
+              className="rounded-xl border-border bg-card shadow-sm h-9 w-9 p-0"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -223,7 +209,7 @@ export function DataTable<TData, TValue>({
                   variant={table.getState().pagination.pageIndex === pageIndex ? "default" : "outline"}
                   size="sm"
                   onClick={() => table.setPageIndex(pageIndex)}
-                  className="rounded-md h-9 w-9 p-0 font-medium border-border"
+                  className="rounded-xl h-9 w-9 p-0 font-medium border-border"
                 >
                   {pageIndex + 1}
                 </Button>
@@ -235,7 +221,7 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="rounded-md border-border bg-card shadow-sm h-9 w-9 p-0"
+              className="rounded-xl border-border bg-card shadow-sm h-9 w-9 p-0"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -256,22 +242,22 @@ export function DataTable<TData, TValue>({
               onChange={(event) =>
                 table.getColumn(filterColumn)?.setFilterValue(event.target.value)
               }
-              className="max-w-xs rounded-md bg-transparent border-border shadow-sm font-normal"
+              className="max-w-xs rounded-xl bg-transparent border-border shadow-sm font-normal"
             />
           )}
           {selectedCount > 0 && onDeleteSelected && (
-            <Button variant="destructive" onClick={handleBulkDelete} className="gap-2 shadow-sm rounded-md h-9">
+            <Button variant="destructive" onClick={handleBulkDelete} className="gap-2 shadow-sm rounded-xl h-9">
               <Trash2 className="w-4 h-4" /> Bulk Delete ({selectedCount})
             </Button>
           )}
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto rounded-md border-border bg-transparent shadow-sm font-medium gap-2 text-foreground h-9">
+            <Button variant="outline" className="ml-auto rounded-xl border-border bg-transparent shadow-sm font-medium gap-2 text-foreground h-9">
               Columns <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="rounded-md shadow-md border-border">
+          <DropdownMenuContent align="end" className="rounded-xl shadow-md border-border">
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
@@ -291,7 +277,7 @@ export function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
 
-      <div className="rounded-md border border-border bg-background overflow-hidden shadow-inner">
+      <div className="rounded-xl border border-border bg-background overflow-hidden shadow-inner">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -351,21 +337,13 @@ export function DataTable<TData, TValue>({
             <p className="text-sm font-medium text-muted-foreground whitespace-nowrap hidden sm:block">
               Rows per page
             </p>
-            <Select
+            <PopoverSelect
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
-            >
-              <SelectTrigger className="h-8 w-[70px] bg-transparent border-border shadow-sm">
-                <SelectValue placeholder={table.getState().pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[10, 20, 50, 100].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={[10, 20, 50, 100].map(pageSize => ({ value: `${pageSize}`, label: `${pageSize}` }))}
+              placeholder={`${table.getState().pagination.pageSize}`}
+              className="h-8 w-[70px] bg-transparent border-border shadow-sm"
+            />
           </div>
         </div>
 
@@ -375,7 +353,7 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="rounded-md border-border bg-transparent shadow-sm font-medium h-9 px-3"
+            className="rounded-xl border-border bg-transparent shadow-sm font-medium h-9 px-3"
           >
             <ChevronLeft className="w-4 h-4 sm:hidden" />
             <span className="hidden sm:inline">Previous</span>
@@ -397,7 +375,7 @@ export function DataTable<TData, TValue>({
                   variant={table.getState().pagination.pageIndex === pageIndex ? "default" : "outline"}
                   size="sm"
                   onClick={() => table.setPageIndex(pageIndex)}
-                  className="rounded-md h-9 w-9 p-0 font-medium border-border"
+                  className="rounded-xl h-9 w-9 p-0 font-medium border-border"
                 >
                   {pageIndex + 1}
                 </Button>
@@ -410,7 +388,7 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="rounded-md border-border bg-transparent shadow-sm font-medium h-9 px-3"
+            className="rounded-xl border-border bg-transparent shadow-sm font-medium h-9 px-3"
           >
             <span className="hidden sm:inline">Next</span>
             <ChevronRight className="w-4 h-4 sm:hidden" />

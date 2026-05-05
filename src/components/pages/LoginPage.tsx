@@ -5,6 +5,7 @@ import { ImageFallback } from '../ImageFallback';
 
 export // --- LOGIN PAGE ---
 function LoginPage({ onLogin, appSettings }: { onLogin: () => void, appSettings?: any }) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -18,7 +19,7 @@ function LoginPage({ onLogin, appSettings }: { onLogin: () => void, appSettings?
       const res = await apiFetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ email, password })
       });
       if (res.ok) {
         const data = await res.json();
@@ -51,6 +52,16 @@ function LoginPage({ onLogin, appSettings }: { onLogin: () => void, appSettings?
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-bold text-muted-foreground mb-2">Alamat Email</label>
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl border border-border focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all outline-none"
+              placeholder="admin@example.com (Kosongkan jika super admin)"
+            />
+          </div>
           <div>
             <label className="block text-sm font-bold text-muted-foreground mb-2">Kata Sandi Akses</label>
             <input 

@@ -1,17 +1,21 @@
-import "@/index.css"; 
-import React from 'react';
+import "@/index.css";
+import React from "react";
 import type { Metadata, Viewport } from "next";
 import { ClientLayout } from "@/components/layout/ClientLayout";
 import { ReactQueryClientProvider } from "@/components/providers/ReactQueryClientProvider";
+import { Toaster } from "sonner";
+import { Tracker } from "@/components/Tracker";
+import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { ServiceWorkerRegistrar } from "@/components/pwa/ServiceWorkerRegistrar";
 
 export const metadata: Metadata = {
-  title: "Leaderboard Siswa",
-  description: "Aplikasi pencapaian poin siswa",
+  title: "Leaderboard Santri",
+  description: "Aplikasi pencapaian poin Santri",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Leaderboard Siswa",
+    title: "Leaderboard Santri",
   },
 };
 
@@ -34,6 +38,10 @@ export default function RootLayout({
         <ReactQueryClientProvider>
           <ClientLayout>
             {children}
+            <Tracker />
+            <OfflineIndicator />
+            <ServiceWorkerRegistrar />
+            <Toaster richColors position="top-right" />
           </ClientLayout>
         </ReactQueryClientProvider>
       </body>

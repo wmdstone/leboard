@@ -4,15 +4,28 @@ import React, { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
-import { applyThemeColors } from "@/components/admin/AdminAppearanceTab";
+import {
+  applyThemeColors,
+  PRESETS,
+} from "@/components/admin/AdminAppearanceTab";
 import { useAuthQuery, useAppDataQuery } from "@/hooks/useAppQueries";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { apiFetch, removeLocalToken } from "@/lib/api";
 import { trackEvent, setAnalyticsAdminFlag } from "@/lib/analytics";
 import { ImageFallback } from "@/components/ImageFallback";
-import { FloatingActionContainer } from "@/components/ui/FloatingActionContainer";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
+import { FloatingSettingsFab } from "@/components/ui/FloatingSettingsFab";
 import { PwaDownloadPrompt } from "@/components/ui/PwaDownloadPrompt";
-import { Trophy, Settings, LogOut, LogIn, Loader2, Home, LayoutDashboard, Sun, Moon } from "lucide-react";
+import {
+  Trophy,
+  Settings,
+  LogOut,
+  Loader2,
+  Newspaper,
+  BarChart3,
+  Sun,
+  Moon,
+} from "lucide-react";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,21 +43,63 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const { data: authData, isLoading: isAuthLoading } = useAuthQuery();
   const { data: appData, isLoading: isAppDataLoading } = useAppDataQuery();
 
+  // Auto-refresh queries when DB changes (posts, students, categories, settings, master_goals)
+  useRealtimeSync();
+
   const appSettings = appData?.appSettings || {};
   const isAdmin = !!authData?.authenticated;
   const isLoading = isAppDataLoading && !appData;
 
+  // Local override for preset (cycle button). Falls back to server appSettings.
+  const [presetOverride, setPresetOverride] = useState<string | null>(null);
+
   useEffect(() => {
-    if (appSettings && Object.keys(appSettings).length > 0) {
-      applyThemeColors(appSettings);
+    const saved =
+      typeof window !== "undefined"
+        ? localStorage.getItem("theme-preset")
+        : null;
+    if (saved && PRESETS[saved]) {
+      setPresetOverride(saved);
+    } else {
+      // Default to fresh_majestic (Green-Yellow) on first visit
+      setPresetOverride("fresh_majestic_yellow");
+      if (typeof window !== "undefined")
+        localStorage.setItem("theme-preset", "fresh_majestic_yellow");
     }
-  }, [appSettings]);
+  }, []);
+
+  useEffect(() => {
+    const merged = {
+      ...appSettings,
+      ...(presetOverride ? { activePresetId: presetOverride } : {}),
+    };
+    if (Object.keys(merged).length > 0) applyThemeColors(merged);
+  }, [appSettings, presetOverride]);
+
+  const cyclePreset = useCallback(() => {
+    const keys = Object.keys(PRESETS);
+    const current = presetOverride || appSettings.activePresetId || keys[0];
+    const idx = keys.indexOf(current);
+    const next = keys[(idx + 1) % keys.length];
+    setPresetOverride(next);
+    localStorage.setItem("theme-preset", next);
+  }, [presetOverride, appSettings.activePresetId]);
+
+  const activePresetName =
+    PRESETS[
+      presetOverride || appSettings.activePresetId || "fresh_majestic_yellow"
+    ]?.name || "Theme";
 
   const [themeMode, setThemeMode] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme-mode") as "light" | "dark";
-    if (saved) setThemeMode(saved);
+    const saved = localStorage.getItem("theme-mode") as "light" | "dark" | null;
+    // Phase 1: Force dark on first visit, ignore OS preference
+    if (saved) {
+      setThemeMode(saved);
+    } else {
+      localStorage.setItem("theme-mode", "dark");
+    }
   }, []);
 
   useEffect(() => {
@@ -56,10 +111,14 @@ function AppContent({ children }: { children: React.ReactNode }) {
     localStorage.setItem("theme-mode", themeMode);
   }, [themeMode]);
 
-  const toggleTheme = () => setThemeMode((prev) => (prev === "light" ? "dark" : "light"));
+  const toggleTheme = () =>
+    setThemeMode((prev) => (prev === "light" ? "dark" : "light"));
 
   useEffect(() => {
-    if ("serviceWorker" in navigator && !localStorage.getItem("vite_sw_cleared_v2")) {
+    if (
+      "serviceWorker" in navigator &&
+      !localStorage.getItem("vite_sw_cleared_v2")
+    ) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         let cleared = false;
         for (const registration of registrations) {
@@ -110,60 +169,56 @@ function AppContent({ children }: { children: React.ReactNode }) {
     return (
       <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-50">
         <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-        <p className="text-primary font-bold tracking-widest uppercase text-xs">Memuat Aplikasi...</p>
+        <p className="text-primary font-bold tracking-widest uppercase text-xs">
+          Memuat Aplikasi...
+        </p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans flex flex-col pb-20 md:pb-0">
-      {/* Navbar Global */}
-      <nav className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-40 shadow-soft hidden md:block">
+      {/* Navbar Global – Leaderboard | Logo (center) | Berita */}
+      <nav className="bg-background border-b border-border sticky top-0 z-40 shadow-soft hidden md:block">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-2 cursor-pointer group" onClick={() => router.push("/")}>
+          <div className="relative flex justify-between items-center h-20">
+            {/* Left: Leaderboard */}
+            <button
+              onClick={() => router.push("/leaderboard")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${pathname === "/leaderboard" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"}`}
+            >
+              <BarChart3 className="w-5 h-5" />
+              Peringkat
+            </button>
+
+            {/* Center: Logo (absolute center) */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 cursor-pointer group bg-background border rounded-full mt-10"
+              onClick={() => router.push("/")}
+            >
               {appSettings.logoUrl ? (
-                <ImageFallback src={appSettings.logoUrl} alt="Logo" variant="logo" className="h-10 w-10 object-contain rounded-xl" wrapperClassName="h-10 w-10" />
+                <ImageFallback
+                  src={appSettings.logoUrl}
+                  alt="Logo"
+                  variant="logo"
+                  className="h-22 w-22 object-contain rounded-xl"
+                  wrapperClassName="h-22 w-22"
+                />
               ) : (
                 <div className="bg-primary p-2 rounded-xl group-hover:rotate-6 transition-transform">
                   <Trophy className="h-6 w-6 text-primary-foreground" />
                 </div>
               )}
-              <span className="font-bold text-xl tracking-tight text-foreground">{appSettings.appName || "PPMH"}</span>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-secondary rounded-xl">
-                {themeMode === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-              <button onClick={() => router.push("/")} className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${pathname === "/" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"}`}>
-                Leaderboard
-              </button>
-
-              {isAdmin ? (
-                <>
-                  <button onClick={() => router.push("/admin")} className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all ${(pathname || "").startsWith("/admin") ? "bg-primary text-primary-foreground shadow-soft" : "text-muted-foreground hover:bg-secondary"}`}>
-                    <Settings className="h-4 w-4" /> Admin Panel
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await apiFetch("/api/logout", { method: "POST" });
-                      removeLocalToken();
-                      queryClient.setQueryData(["auth"], { authenticated: false });
-                      trackEvent("admin_logout", { isAdmin: true });
-                      router.push("/");
-                    }}
-                    className="p-2 text-muted-foreground/60 hover:text-red-500 transition-colors"
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </button>
-                </>
-              ) : (
-                <button onClick={() => router.push("/login")} className="px-4 py-2 rounded-xl text-sm font-semibold text-primary hover:bg-primary/10 border border-primary/20 transition-all">
-                  Admin Login
-                </button>
-              )}
-            </div>
+            {/* Right: Berita */}
+            <button
+              onClick={() => router.push("/blog")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${(pathname || "").startsWith("/blog") || (pathname || "").startsWith("/berita") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"}`}
+            >
+              <Newspaper className="w-5 h-5" />
+              Berita
+            </button>
           </div>
         </div>
       </nav>
@@ -171,55 +226,88 @@ function AppContent({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 overflow-x-hidden">
         <ErrorBoundary>
-          <div key={pathname}>
-            {children}
-          </div>
+          <div key={pathname}>{children}</div>
         </ErrorBoundary>
       </main>
 
-      <FloatingActionContainer>
-        <button onClick={toggleTheme} className="md:hidden p-3 bg-secondary border border-border text-foreground transition-colors shadow-soft rounded-full z-50">
-          {themeMode === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
+      {/* Floating Settings FAB – bottom-right, below ScrollToTop */}
+      <FloatingSettingsFab
+        themeMode={themeMode}
+        toggleTheme={toggleTheme}
+        activePresetId={
+          presetOverride ||
+          appSettings.activePresetId ||
+          "fresh_majestic_yellow"
+        }
+        cyclePreset={cyclePreset}
+        activePresetName={activePresetName}
+        isAdmin={isAdmin}
+      />
+
+      {/* Scroll to top – bottom-right, above FAB (with breathing room) */}
+      <div className="fixed bottom-40 md:bottom-18 right-4 z-50">
         <ScrollToTop />
-      </FloatingActionContainer>
+      </div>
 
       <PwaDownloadPrompt />
 
-      {/* Bottom Mobile Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-8 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] flex justify-between items-center md:hidden z-50">
-        <button
-          onClick={() => {
-            if (navigator.vibrate) navigator.vibrate(50);
-            router.push("/");
-          }}
-          className={`flex flex-col items-center gap-1.5 transition-colors ${pathname === "/" || (pathname || "").startsWith("/student") ? "text-primary" : "text-muted-foreground/60 hover:text-muted-foreground"}`}
-        >
-          <Home className="w-6 h-6" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Beranda</span>
-        </button>
+      {/* Mobile Bottom Nav – Leaderboard | Logo (absolute center) | Berita */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border pt-5 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden z-50">
+        {/* Logo – absolute center of screen */}
+        <div className="absolute left-1/2 -translate-x-1/2 -top-6 z-10">
+          {appSettings?.logoUrl ? (
+            <div
+              className="w-20 h-20 rounded-full border border-border bg-card shadow-soft flex items-center justify-center overflow-hidden cursor-pointer active:scale-95 transition-transform"
+              onClick={() => router.push("/")}
+            >
+              <ImageFallback
+                src={appSettings.logoUrl}
+                alt="Logo"
+                variant="logo"
+                className="w-full h-full object-cover"
+                wrapperClassName="w-full h-full"
+              />
+            </div>
+          ) : (
+            <div
+              className="w-16 h-16 rounded-full border-4 border-border bg-card shadow-soft flex items-center justify-center text-primary cursor-pointer active:scale-95 transition-transform"
+              onClick={() => router.push("/")}
+            >
+              <Trophy className="w-8 h-8" />
+            </div>
+          )}
+        </div>
 
-        {appSettings?.logoUrl ? (
-          <div className="w-16 h-16 -mt-8 rounded-full border-4 border-border bg-card shadow-soft flex items-center justify-center overflow-hidden z-10 cursor-pointer active:scale-95 transition-transform" onClick={() => router.push("/")}>
-            <ImageFallback src={appSettings.logoUrl} alt="Logo" variant="logo" className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
-          </div>
-        ) : (
-          <div className="w-16 h-16 -mt-8 rounded-full border-4 border-border bg-card shadow-soft flex items-center justify-center z-10 text-primary cursor-pointer active:scale-95 transition-transform" onClick={() => router.push("/")}>
-            <Trophy className="w-8 h-8" />
-          </div>
-        )}
+        <div className="flex justify-between items-center px-8">
+          <button
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(50);
+              router.push("/leaderboard");
+            }}
+            className={`flex flex-col items-center gap-1.5 transition-colors ${pathname === "/leaderboard" ? "text-primary" : "text-muted-foreground/60 hover:text-muted-foreground"}`}
+          >
+            <BarChart3 className="w-6 h-6" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Peringkat
+            </span>
+          </button>
 
-        <button
-          onClick={() => {
-            if (navigator.vibrate) navigator.vibrate(50);
-            if (isAdmin) router.push("/admin");
-            else router.push("/login");
-          }}
-          className={`flex flex-col items-center gap-1.5 transition-colors ${(pathname || "").startsWith("/admin") || pathname === "/login" ? "text-primary" : "text-muted-foreground/60 hover:text-muted-foreground"}`}
-        >
-          {isAdmin ? <LayoutDashboard className="w-6 h-6" /> : <LogIn className="w-6 h-6" />}
-          <span className="text-[10px] font-bold uppercase tracking-wider">{isAdmin ? "Admin" : "Masuk"}</span>
-        </button>
+          {/* Spacer for logo */}
+          <div className="w-16" />
+
+          <button
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(50);
+              router.push("/blog");
+            }}
+            className={`flex flex-col items-center gap-1.5 transition-colors ${(pathname || "").startsWith("/blog") || (pathname || "").startsWith("/berita") ? "text-primary" : "text-muted-foreground/60 hover:text-muted-foreground"}`}
+          >
+            <Newspaper className="w-6 h-6" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Berita
+            </span>
+          </button>
+        </div>
       </nav>
     </div>
   );

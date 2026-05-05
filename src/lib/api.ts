@@ -37,14 +37,21 @@ declare global {
 
 export const apiFetch = async (url: string, options: RequestInit = {}) => {
   console.log(`[SSR DEBUG] apiFetch called for ${url}`);
+  
+  if (typeof window === 'undefined') {
+    console.log(`[SSR DEBUG] Skipping apiFetch on server for ${url} to prevent Firebase hanging building process`);
+    return new Response(JSON.stringify({}), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+
   const token = getLocalToken();
   const headers = new Headers(options.headers || {});
+
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
   const isWrite = (options.method || 'GET').toUpperCase() !== 'GET';
-  const TIMEOUT_MS = isWrite ? 30000 : 20000;
+  const TIMEOUT_MS = isWrite ? 10000 : 5000;
   const userSignal = (options as any).signal as AbortSignal | undefined;
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(new DOMException('timeout', 'AbortError')), TIMEOUT_MS);
@@ -75,7 +82,9 @@ export const apiFetch = async (url: string, options: RequestInit = {}) => {
     }
     if (res.status === 401) {
       removeLocalToken();
-      window.dispatchEvent(new Event('auth-expired'));
+      if (token) {
+        window.dispatchEvent(new Event('auth-expired'));
+      }
     }
     console.log(`[apiFetch] Finished ${url} with status ${res.status}`);
     return res;
