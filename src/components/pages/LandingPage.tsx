@@ -33,6 +33,7 @@ import { CategoryChips } from "@/components/ui/CategoryChips";
 import { ArticleCard } from "@/components/ui/ArticleCard";
 import { PopoverSelect } from "@/components/ui/PopoverSelect";
 import { SmartSearchBar, type SortKey } from "@/components/ui/SmartSearchBar";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
 function todayLabel() {
   return new Date().toLocaleDateString("id-ID", {
@@ -196,7 +197,7 @@ export function LandingPage() {
   );
   const stats = [
     {
-      label: "Web Visitors",
+      label: "Pengunjung Web",
       value: analytics?.uniqueVisitors || 0,
       icon: Users,
       hint: "Pengunjung Unik",
@@ -282,47 +283,6 @@ export function LandingPage() {
             </div>
           </motion.div>
         </div>
-      </section>
-
-      {/* Berita Unggulan — horizontal rail */}
-      <section className="max-w-6xl mx-auto px-6 md:px-8 pt-10">
-        <div className="flex items-end justify-between gap-4 mb-6">
-          <div>
-            <h2 className="font-display text-2xl md:text-3xl font-black text-foreground tracking-tight">
-              <Star className="w-6 h-6 text-primary inline mr-2" />
-              {activeCat ? activeCat : "Berita Unggulan"}
-              {search && (
-                <span className="font-normal italic text-base text-muted-foreground ml-3">
-                  "{search}"
-                </span>
-              )}
-            </h2>
-          </div>
-          <Link
-            href="/blog"
-            className="hidden sm:inline-flex items-center text-foreground font-bold hover:text-primary transition-colors uppercase tracking-widest text-xs border-b border-foreground hover:border-primary pb-1"
-          >
-            Semua Artikel <ArrowRight className="w-3.5 h-3.5 ml-1" />
-          </Link>
-        </div>
-        <div className="editorial-rule mb-6" />
-
-        {featuredPosts.length === 0 ? (
-          <div className="py-16 text-center border border-dashed border-border">
-            <BookOpen className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground font-serif-body italic">
-              Tidak ada artikel yang cocok dengan filter Anda.
-            </p>
-          </div>
-        ) : (
-          <HScroller ariaLabel="Berita unggulan">
-            {featuredPosts.map((post) => (
-              <HScrollItem key={post.id}>
-                <ArticleCard post={post} showViews={sort === "popular"} />
-              </HScrollItem>
-            ))}
-          </HScroller>
-        )}
       </section>
 
       {/* Peringkat — horizontal rail */}
@@ -516,6 +476,156 @@ export function LandingPage() {
             </div>
           </div>
         </HScroller>
+      </section>
+
+      {/* Berita Section */}
+      <section className="max-w-6xl mx-auto px-2 md:px-8 pt-8 text-left">
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <Newspaper className="w-6 h-6 text-primary" />
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+              Berita
+            </h2>
+          </div>
+          <Link
+            href="/blog"
+            className="text-primary text-xs font-bold uppercase tracking-widest hover:underline inline-flex items-center"
+          >
+            Lihat Semua <ArrowRight className="w-3 h-3 ml-1" />
+          </Link>
+        </div>
+        <div className="editorial-rule mb-6" />
+
+        {/* Horizontal Scroll List (Popular/Featured) */}
+        {allPosts.length > 0 && (
+          <div className="mb-4 ml-4">
+            <div className="flex items-center gap-2 text-sm font-bold text-foreground mb-5 uppercase tracking-widest">
+              <Star className="w-4 h-4 text-primary" /> Populer Saat Ini
+            </div>
+            <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-5 pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+              {[...allPosts]
+                .sort(
+                  (a, b) =>
+                    ((b as any).organic_views || 0) +
+                    ((b as any).offset_views || 0) -
+                    (((a as any).organic_views || 0) +
+                      ((a as any).offset_views || 0)),
+                )
+                .slice(0, 5)
+                .map((post) => (
+                  <Link
+                    key={post.id}
+                    href={`/blog/${post.slug || post.id}`}
+                    className="snap-start shrink-0 w-[240px] sm:w-[320px] flex flex-col group"
+                  >
+                    <ImageWithFallback
+                      src={post.featured_image || null}
+                      alt={post.title}
+                      fallbackType="gradient"
+                      fill
+                      sizes="320px"
+                      containerClassName="w-full aspect-[16/10] sm:aspect-video rounded-2xl overflow-hidden mb-4 shadow-sm"
+                      className="transition-transform duration-500 md:group-hover:scale-105"
+                    />
+                    <div className="flex items-center gap-2 mb-2">
+                      {post.category && (
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-primary">
+                          {post.category}
+                        </span>
+                      )}
+                      <span className="text-muted-foreground/30 text-[10px]">
+                        •
+                      </span>
+                      <div className="flex items-center text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+                        <span>
+                          {((post as any).organic_views || 0) +
+                            ((post as any).offset_views || 0)}{" "}
+                          views
+                        </span>
+                      </div>
+                    </div>
+                    <h3 className="font-display text-sm md:text-lg font-bold text-foreground leading-snug line-clamp-2 md:line-clamp-3 group-hover:text-primary transition-colors text-pretty">
+                      {post.title}
+                    </h3>
+                    {post.excerpt && (
+                      <p className="mt-2 text-xs text-muted-foreground line-clamp-2 leading-relaxed sm:block">
+                        {post.excerpt}
+                      </p>
+                    )}
+                  </Link>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* Vertical List View (Artikel Terbaru) */}
+        {allPosts.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 text-sm font-bold text-foreground uppercase tracking-widest border-b border-border/50 pb-3">
+              <Activity className="w-4 h-4 text-primary" /> Artikel Terbaru
+            </div>
+            <div className="flex flex-col">
+              {[...allPosts]
+                .sort((a, b) =>
+                  (b.published_at || "").localeCompare(a.published_at || ""),
+                )
+                .slice(0, 5)
+                .map((post, i, arr) => (
+                  <Link
+                    key={post.id}
+                    href={`/blog/${post.slug || post.id}`}
+                    className={`flex items-center sm:items-start gap-4 sm:gap-6 group py-4 sm:py-8 ${
+                      i !== arr.length - 1 ? "border-b border-border/40" : ""
+                    }`}
+                  >
+                    <ImageWithFallback
+                      src={post.featured_image || null}
+                      alt={post.title}
+                      fallbackType="gradient"
+                      fill
+                      sizes="160px"
+                      containerClassName="w-24 h-24 md:w-40 md:h-32 shrink-0 rounded-xl overflow-hidden shadow-sm self-center sm:self-start"
+                      className="transition-transform duration-500 md:group-hover:scale-105"
+                    />
+                    <div className="flex-1 min-w-0 flex flex-col justify-center self-stretch py-1">
+                      <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                        {post.category && (
+                          <span className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-primary">
+                            {post.category}
+                          </span>
+                        )}
+                        <span className="text-muted-foreground/30 text-[10px] sm:text-xs">
+                          •
+                        </span>
+                        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground font-medium">
+                          <time>
+                            {post.published_at
+                              ? new Date(post.published_at).toLocaleDateString(
+                                  "id-ID",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  },
+                                )
+                              : "-"}
+                          </time>
+                        </div>
+                      </div>
+                      <h3 className="font-display text-sm md:text-xl font-bold text-foreground leading-snug line-clamp-2 sm:line-clamp-3 group-hover:text-primary transition-colors text-pretty">
+                        {post.title}
+                      </h3>
+                      {post.excerpt && (
+                        <p className="mt-2 text-xs md:text-sm text-muted-foreground line-clamp-2 leading-relaxed sm:block">
+                          {post.excerpt}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

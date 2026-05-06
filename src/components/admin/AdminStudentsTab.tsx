@@ -605,23 +605,11 @@ export function AdminStudentsTab({
         </div>
       </div>
 
-      <div className="mb-6">
-        <StudentSearchAdvanced
-          value={searchFilter}
-          onChange={setSearchFilter}
-          sortKey={sortKey}
-          onSortChange={setSortKey}
-          availableTags={availableTags}
-          studentTagSource={studentTagSource}
-          placeholder="Cari Santri..."
-        />
-      </div>
-
       <DataTable
         columns={columns}
         data={filtered}
         filterColumn="name"
-        filterPlaceholder="Filter Santri..."
+        filterPlaceholder="Cari / Filter Santri..."
         onDeleteSelected={(ids) => setBulkDeleteIds(ids)}
       />
 

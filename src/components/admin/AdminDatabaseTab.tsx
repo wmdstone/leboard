@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { apiFetch } from '../../lib/api';
-import { UniversalDataTable } from '@/components/ui/UniversalDataTable';
+import { DataTable } from '@/components/ui/DataTable';
 import { PopoverSelect } from '@/components/ui/PopoverSelect';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmModal } from '../ui/ConfirmModal';
@@ -113,7 +113,7 @@ export function AdminDatabaseTab() {
           <Loader2 className="w-4 h-4 animate-spin" /> Memuat {meta.label}…
         </div>
       ) : (
-        <UniversalDataTable
+        <DataTable
           columns={columns}
           data={data}
           filterColumn={meta.filterCol}
