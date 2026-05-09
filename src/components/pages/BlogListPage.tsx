@@ -197,7 +197,7 @@ export function BlogListPage() {
                           views
                         </div>
                       </div>
-                      <h3 className="font-display text-xs md:text-lg font-bold text-foreground leading-snug line-clamp-2 md:line-clamp-3 group-hover:text-primary transition-colors text-pretty">
+                      <h3 className="font-display text-sm md:text-lg font-bold text-foreground leading-snug line-clamp-2 md:line-clamp-3 group-hover:text-primary transition-colors text-pretty">
                         {post.title}
                       </h3>
                       {post.excerpt && (
@@ -248,7 +248,7 @@ export function BlogListPage() {
                           <time>{formatDate(post.published_at)}</time>
                         </div>
                       </div>
-                      <h3 className="font-display text-xs sm:text-xl font-bold text-foreground leading-snug line-clamp-2 sm:line-clamp-3 group-hover:text-primary transition-colors text-pretty">
+                      <h3 className="font-display text-sm sm:text-xl font-bold text-foreground leading-snug line-clamp-2 sm:line-clamp-3 group-hover:text-primary transition-colors text-pretty">
                         {post.title}
                       </h3>
                       {post.excerpt && (

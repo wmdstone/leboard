@@ -116,7 +116,7 @@ export function AdminDashboard({
       <div className="flex flex-col gap-6">
         {/* Scrollable Horizontal Tabs */}
         <div className="sticky top-0 md:top-16 z-30 bg-card/95 backdrop-blur-sm rounded-2xl border border-border overflow-x-auto no-scrollbar scrollbar-hide snap-x px-2 py-1 shadow-soft">
-          <div className="flex items-center gap-2 sm:gap-4 min-w-max px-4 sm:px-0">
+          <div className="flex items-center gap-2 sm:gap-4 border-border min-w-max px-4 sm:px-0">
             {[
               { id: "students", label: "Santri", icon: Users, show: true },
               {
@@ -132,18 +132,18 @@ export function AdminDashboard({
                 icon: HardDrive,
                 show: true,
               },
-              // {
-              //   id: "appearance",
-              //   label: "Tampilan",
-              //   icon: Palette,
-              //   show: true,
-              // },
-              // {
-              //   id: "statistics",
-              //   label: "Statistik",
-              //   icon: Search,
-              //   show: true,
-              // },
+              {
+                id: "appearance",
+                label: "Tampilan",
+                icon: Palette,
+                show: true,
+              },
+              {
+                id: "statistics",
+                label: "Statistik",
+                icon: Search,
+                show: true,
+              },
               {
                 id: "import-export",
                 label: "Impor / Ekspor",
@@ -156,12 +156,12 @@ export function AdminDashboard({
                 icon: UserCog,
                 show: true,
               },
-              // {
-              //   id: "cache",
-              //   label: "Manajemen PWA",
-              //   icon: ShieldCheck,
-              //   show: true,
-              // },
+              {
+                id: "cache",
+                label: "Manajemen PWA",
+                icon: ShieldCheck,
+                show: true,
+              },
             ]
               .filter((t) => t.show)
               .map((tab) => (
@@ -208,7 +208,7 @@ export function AdminDashboard({
           )}
           {activeTab === "blog" && <AdminBlogTab />}
           {activeTab === "database" && <AdminDatabaseTab />}
-          {/* {activeTab === "appearance" && (
+          {activeTab === "appearance" && (
             <AdminAppearanceTab
               refreshData={refreshData}
               appSettings={appSettings}
@@ -216,8 +216,8 @@ export function AdminDashboard({
                 queryClient.invalidateQueries({ queryKey: ["app-data"] })
               }
             />
-          )} */}
-          {/* {activeTab === "statistics" && <AdminStatisticsTab />} */}
+          )}
+          {activeTab === "statistics" && <AdminStatisticsTab />}
           {activeTab === "import-export" && (
             <AdminImportExportTab
               apiFetch={apiFetch}
@@ -228,7 +228,7 @@ export function AdminDashboard({
             />
           )}
           {activeTab === "admin-users" && <AdminUserManagement />}
-          {/* {activeTab === "cache" && <CacheHealthTab />} */}
+          {activeTab === "cache" && <CacheHealthTab />}
         </div>
       </div>
     </div>

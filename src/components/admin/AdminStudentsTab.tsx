@@ -245,7 +245,7 @@ function GoalAuditCard({
         </button>
 
         <div className="flex gap-2 shrink-0">
-          <button
+          {/* <button
             type="button"
             onClick={onToggleAssign}
             className={`p-2 rounded-xl transition-all ${assigned ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}
@@ -256,7 +256,7 @@ function GoalAuditCard({
             ) : (
               <Square className="w-5 h-5" />
             )}
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -296,7 +296,7 @@ function GoalAuditCard({
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent
-                          className="w-auto p-0 z-[80]"
+                          className="w-auto p-0 z-[200]"
                           align="start"
                         >
                           <Calendar
@@ -1165,7 +1165,7 @@ function StudentAdminModal({
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0 w-[260px] z-50" align="end">
+                <PopoverContent className="p-0 w-[260px] z-[200]" align="end">
                   <Command>
                     <CommandInput placeholder="Cari grup..." />
                     <CommandList>
@@ -1353,15 +1353,15 @@ function StudentAdminModal({
               "Konfirmasi Perubahan"
             )}
           </Button>
-          <ConfirmModal
-            isOpen={!!bulkConfirm}
-            title={bulkConfirm?.title || ""}
-            message={bulkConfirm?.message || ""}
-            onConfirm={() => bulkConfirm?.onConfirm()}
-            onCancel={() => setBulkConfirm(null)}
-          />
         </div>
       </motion.div>
+      <ConfirmModal
+        isOpen={!!bulkConfirm}
+        title={bulkConfirm?.title || ""}
+        message={bulkConfirm?.message || ""}
+        onConfirm={() => bulkConfirm?.onConfirm()}
+        onCancel={() => setBulkConfirm(null)}
+      />
     </div>
   );
 }
