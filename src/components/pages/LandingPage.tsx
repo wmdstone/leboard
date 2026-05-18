@@ -532,7 +532,7 @@ export function LandingPage() {
                   <Link
                     key={post.id}
                     href={`/blog/${post.slug || post.id}`}
-                    className="snap-start shrink-0 w-[240px] sm:w-[320px] flex flex-col group"
+                    className="snap-start shrink-0 w-[200px] flex flex-col group"
                   >
                     <ImageWithFallback
                       src={post.featured_image || null}
@@ -560,11 +560,11 @@ export function LandingPage() {
                         </span>
                       </div>
                     </div>
-                    <h3 className="font-display text-sm md:text-lg font-bold text-foreground leading-snug line-clamp-2 md:line-clamp-3 group-hover:text-primary transition-colors text-pretty">
+                    <h3 className="font-display text-sm md:text-lg font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors text-pretty">
                       {post.title}
                     </h3>
                     {post.excerpt && (
-                      <p className="mt-2 text-xs text-muted-foreground line-clamp-2 leading-relaxed sm:block">
+                      <p className="mt-2 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                         {post.excerpt}
                       </p>
                     )}
@@ -628,11 +628,11 @@ export function LandingPage() {
                           </time>
                         </div>
                       </div>
-                      <h3 className="font-display text-sm md:text-xl font-bold text-foreground leading-snug line-clamp-2 sm:line-clamp-3 group-hover:text-primary transition-colors text-pretty">
+                      <h3 className="font-display text-sm md:text-xl font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors text-pretty">
                         {post.title}
                       </h3>
                       {post.excerpt && (
-                        <p className="mt-2 text-xs md:text-sm text-muted-foreground line-clamp-2 leading-relaxed sm:block">
+                        <p className="mt-2 text-xs md:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                           {post.excerpt}
                         </p>
                       )}
