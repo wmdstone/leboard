@@ -175,7 +175,7 @@ export function connectFirestore(
 export function disposeFirestore(connId: string) {
   const app = appCache.get(connId);
   if (app) {
-    deleteApp(app).catch(() => {});
+    deleteApp(app as any).catch(() => {});
   }
   appCache.delete(connId);
   dbCache.delete(connId);
