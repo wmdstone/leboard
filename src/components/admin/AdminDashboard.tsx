@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 // Tooltip extracted locally? Or just removed because we didn't add the lib
 import {
   LogOut,
@@ -68,6 +68,24 @@ export function AdminDashboard({
   const { isSuperAdmin } = useAuthRole();
   const [activeTab, setActiveTab] = useState("students");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const tabsContainer = tabsRef.current;
+    if (!tabsContainer) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Hanya tangkap jika ada scroll vertikal dari mouse
+      if (e.deltaY !== 0) {
+        e.preventDefault(); // Matikan scroll halaman ke bawah
+
+        // Geser manual ke samping tanpa dihalangi oleh CSS Snapping
+        tabsContainer.scrollLeft += e.deltaY;
+      }
+    };
+
+    tabsContainer.addEventListener("wheel", handleWheel, { passive: false });
+    return () => tabsContainer.removeEventListener("wheel", handleWheel);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -115,74 +133,92 @@ export function AdminDashboard({
 
       <div className="flex flex-col gap-6">
         {/* Scrollable Horizontal Tabs */}
-        <div className="sticky top-0 md:top-16 z-30 bg-card/95 backdrop-blur-sm rounded-2xl border border-border overflow-x-auto no-scrollbar scrollbar-hide snap-x px-2 py-1 shadow-soft">
-          <div className="flex items-center gap-2 sm:gap-4 border-border min-w-max px-4 sm:px-0">
-            {[
-              { id: "students", label: "Santri", icon: Users, show: true },
-              {
-                id: "goals",
-                label: "Kategori & Tugas",
-                icon: Target,
-                show: true,
-              },
-              { id: "blog", label: "Insight CMS", icon: BookOpen, show: true },
-              {
-                id: "database",
-                label: "Database Manager",
-                icon: HardDrive,
-                show: true,
-              },
-              {
-                id: "appearance",
-                label: "Tampilan",
-                icon: Palette,
-                show: true,
-              },
-              {
-                id: "statistics",
-                label: "Statistik",
-                icon: Search,
-                show: true,
-              },
-              {
-                id: "import-export",
-                label: "Impor / Ekspor",
-                icon: Database,
-                show: true,
-              },
-              {
-                id: "admin-users",
-                label: isSuperAdmin ? "Manajemen Admin" : "Profil Editor",
-                icon: UserCog,
-                show: true,
-              },
-              {
-                id: "cache",
-                label: "Manajemen PWA",
-                icon: ShieldCheck,
-                show: true,
-              },
-            ]
-              .filter((t) => t.show)
-              .map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    if (navigator.vibrate) navigator.vibrate(50);
-                    setActiveTab(tab.id);
-                  }}
-                  className={`group flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 min-h-11 font-bold text-base sm:text-lg transition-all whitespace-nowrap active:scale-95 snap-start ${
-                    activeTab === tab.id
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <tab.icon
-                    className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 transition-colors ${activeTab === tab.id ? "text-primary" : "text-muted-foreground/60 group-hover:text-muted-foreground"}`}
-                  />
-                  {tab.label}
-                </button>
-              ))}
+        <div className="flex w-full">
+          <div
+            ref={tabsRef}
+            data-horizontal-scroll="true"
+            /* HAPUS: snap-x. TAMBAHKAN: w-full */
+            className="scrollbar-hide flex flex-nowrap items-center overflow-x-auto select-none bg-card/95 backdrop-blur-sm rounded-xl border border-border p-1 shadow-soft w-full"
+            style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+          >
+            <div className="inline-flex items-center gap-2 px-2 py-2">
+              {[
+                { id: "students", label: "Santri", icon: Users, show: true },
+                {
+                  id: "goals",
+                  label: "Kategori & Tugas",
+                  icon: Target,
+                  show: true,
+                },
+                {
+                  id: "blog",
+                  label: "Insight CMS",
+                  icon: BookOpen,
+                  show: true,
+                },
+                {
+                  id: "database",
+                  label: "Database Manager",
+                  icon: HardDrive,
+                  show: true,
+                },
+                {
+                  id: "appearance",
+                  label: "Tampilan",
+                  icon: Palette,
+                  show: true,
+                },
+                {
+                  id: "statistics",
+                  label: "Statistik",
+                  icon: Search,
+                  show: true,
+                },
+                {
+                  id: "import-export",
+                  label: "Impor / Ekspor",
+                  icon: Database,
+                  show: true,
+                },
+                {
+                  id: "admin-users",
+                  label: isSuperAdmin ? "Manajemen Admin" : "Profil Editor",
+                  icon: UserCog,
+                  show: true,
+                },
+                {
+                  id: "cache",
+                  label: "Manajemen PWA",
+                  icon: ShieldCheck,
+                  show: true,
+                },
+              ]
+                .filter((t) => t.show)
+                .map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      if (navigator.vibrate) navigator.vibrate(50);
+                      setActiveTab(tab.id);
+                    }}
+                    /* HAPUS: snap-start. TAMBAHKAN: shrink-0 */
+                    className={`group flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm sm:text-base transition-all whitespace-nowrap active:scale-95 shrink-0 ${
+                      activeTab === tab.id
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <tab.icon
+                      className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 transition-colors ${
+                        activeTab === tab.id
+                          ? "text-primary-foreground"
+                          : "text-muted-foreground/60 group-hover:text-muted-foreground"
+                      }`}
+                    />
+                    {tab.label}
+                  </button>
+                ))}
+            </div>
           </div>
         </div>
 
