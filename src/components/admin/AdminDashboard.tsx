@@ -19,21 +19,23 @@ import {
   UserCog,
   BookOpen,
   HardDrive,
+  Image as ImageIcon,
+  History,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiFetch, removeLocalToken } from "../../lib/api";
 import { trackEvent } from "../../lib/analytics";
 import { AdminStudentsTab } from "./AdminStudentsTab";
 import { AdminGoalsTab } from "./AdminGoalsTab";
-import { AdminAppearanceTab } from "./AdminAppearanceTab";
 import { AdminStatisticsTab } from "./AdminStatisticsTab";
 import { AdminImportExportTab } from "../AdminImportExportTab";
 import CacheHealthTab from "../CacheHealthTab";
 import { AdminUserManagement } from "./AdminUserManagement";
 import { AdminBlogTab } from "./AdminBlogTab";
 import { AdminDatabaseTab } from "./AdminDatabaseTab";
+import { AdminGalleryTab } from "./AdminGalleryTab";
+import { AdminSejarahTab } from "./AdminSejarahTab";
 import { useAuthRole } from "@/hooks/useAuthRole";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import type {
   Category,
   MasterGoal,
@@ -50,8 +52,6 @@ export function AdminDashboard({
   categories,
   groups = [],
   calculateTotalPoints,
-  appSettings,
-  setAppSettings,
   navigateTo,
 }: {
   students: Student[];
@@ -122,7 +122,7 @@ export function AdminDashboard({
               trackEvent("admin_logout", { isAdmin: true });
               navigateTo("/");
             }}
-            className="bg-card border border-red-200 px-4 py-2 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 flex items-center justify-center active:scale-95 transition-all md:hidden"
+            className="bg-card border border-red-200 px-4 py-2 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 flex items-center justify-center active:scale-95 transition-all"
             aria-label="Keluar"
             title="Keluar"
           >
@@ -157,15 +157,21 @@ export function AdminDashboard({
                   show: true,
                 },
                 {
-                  id: "database",
-                  label: "Database Manager",
-                  icon: HardDrive,
+                  id: "gallery",
+                  label: "Galeri",
+                  icon: ImageIcon,
                   show: true,
                 },
                 {
-                  id: "appearance",
-                  label: "Tampilan",
-                  icon: Palette,
+                  id: "sejarah",
+                  label: "Sejarah",
+                  icon: History,
+                  show: true,
+                },
+                {
+                  id: "database",
+                  label: "Database Manager",
+                  icon: HardDrive,
                   show: true,
                 },
                 {
@@ -243,16 +249,9 @@ export function AdminDashboard({
             />
           )}
           {activeTab === "blog" && <AdminBlogTab />}
+          {activeTab === "gallery" && <AdminGalleryTab />}
+          {activeTab === "sejarah" && <AdminSejarahTab />}
           {activeTab === "database" && <AdminDatabaseTab />}
-          {activeTab === "appearance" && (
-            <AdminAppearanceTab
-              refreshData={refreshData}
-              appSettings={appSettings}
-              setAppSettings={() =>
-                queryClient.invalidateQueries({ queryKey: ["app-data"] })
-              }
-            />
-          )}
           {activeTab === "statistics" && <AdminStatisticsTab />}
           {activeTab === "import-export" && (
             <AdminImportExportTab
